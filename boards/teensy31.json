@@ -286,5 +286,11 @@
 		"flags": {
 			"touch": true
 		}
+	},
+	"connector0pin": {
+		"side": "left",
+		"fn": {
+			"gnd": "GROUND"
+		}
 	}
 }
