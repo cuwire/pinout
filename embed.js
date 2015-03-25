@@ -4,6 +4,7 @@ if (boardImg) {
 	boardImg.style.margin =  "0 " + parseInt((boardImg.parentElement.parentElement.clientWidth - boardImg.width)/2) + "px";
 }
 
+var baseUrl = '';
 var dataFile = 'pro.json';
 
 function boardChanged () {
@@ -14,10 +15,10 @@ function boardChanged () {
 
 	var boardImg = document.getElementById ('boardImage');
 	boardImg.style.visibility = null;
-	boardImg.setAttribute ('data', select.value + '.svg');
+	boardImg.setAttribute ('data', baseUrl + select.value + '.svg');
 	boardImg.style.visibility = "visible";
 
-	dataFile = select.value + '.json';
+	dataFile = baseUrl + select.value + '.json';
 	// showLabels();
 }
 
@@ -341,17 +342,25 @@ function showLabels (exclude) {
 
 document.addEventListener("DOMContentLoaded", function(event) {
 
+//	var embedScript = document.getElementById ('cuwire-pinout');
+//	var embedCSS = embedScript.getAttribute ('src', 2).replace (/js$/, 'css');
+
 	var boardImg = document.getElementById ('boardImage');
+
+	var url = boardImg.data;
+	baseUrl = url.replace (/[^\/]+\.svg$/, '')
+
+	console.log ();
 
 	if (window.location.hash) {
 
 		var boardId = window.location.hash.replace ('#', '');
 
 		boardImg.style.visibility = null;
-		boardImg.setAttribute ('data', boardId + '.svg');
+		boardImg.setAttribute ('data', baseUrl + boardId + '.svg');
 		boardImg.style.visibility = "visible";
 
-		dataFile = boardId + '.json';
+		dataFile = baseUrl + boardId + '.json';
 
 		var boardSelectForm = document.getElementById ('boardId');
 		boardSelectForm.value = boardId;
@@ -361,7 +370,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
 		var svgDoc = boardImg.getSVGDocument();
 		var linkElm = svgDoc.createElementNS("http://www.w3.org/1999/xhtml", "link");
-		linkElm.setAttribute("href", "embed.css");
+		linkElm.setAttribute("href", "../embed.css");
 		linkElm.setAttribute("type", "text/css");
 		linkElm.setAttribute("rel", "stylesheet");
 
