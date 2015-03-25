@@ -1,49 +1,31 @@
 {
 	"cuwire": {
 		"meta": {
-			"reference": ["connector25", "connector26"],
+			"reference": ["connector17", "connector18"],
 			"labelOffsetMulX": 1
 		}
 	},
-	"connector20": {
-		"side": "left",
-		"fn": {
-			"analog": "A4",
-			"i2c": "SCL"
-		},
-		"fnlong": {
-			"pin": 27,
-			"digital": 18,
-			"pcint": "PCINT12",
-			"adc": "ADC4"
-		}
-	},
-	"connector21": {
-		"side": "left",
-		"fn": {
-			"analog": "A5",
-			"i2c": "SDA"
-		},
-		"fnlong": {
-			"pin": 28,
-			"digital": 19,
-			"pcint": "PCINT13",
-			"adc": "ADC5"
-		}
-	},
-	"connector25": {
+	"connector31": {
 		"side": "right",
 		"fn": {
 			"power": "RAW"
 		}
 	},
-	"connector26": {
+	"connector32": {
 		"side": "right",
 		"fn": {
 			"gnd": "GROUND"
 		}
 	},
-	"connector27": {
+	"connector18": {
+		"side": "left",
+		"fn": {
+			"pin": 29,
+			"system": "RESET",
+			"pcint": "PCINT14"
+		}
+	},
+	"connector33": {
 		"side": "right",
 		"fn": {
 			"pin": 29,
@@ -51,13 +33,57 @@
 			"pcint": "PCINT14"
 		}
 	},
-	"connector28": {
+	"connector34": {
 		"side": "right",
 		"fn": {
-			"power": "VCC"
+			"power": "5V"
 		}
 	},
-	"connector29": {
+	"connector44": {
+		"side": "right",
+		"fn": {
+			"power": "3.3V"
+		}
+	},
+	"connector35": {
+		"side": "right",
+		"fn": {
+			"pin": 22,
+			"analog": "A7",
+			"adc": "ADC7"
+		}
+	},
+	"connector36": {
+		"side": "right",
+		"fn": {
+			"pin": 19,
+			"analog": "A6",
+			"adc": "ADC6"
+		}
+	},
+	"connector37": {
+		"side": "right",
+		"fn": {
+			"pin": 28,
+			"digital": 19,
+			"analog": "A5",
+			"pcint": "PCINT13",
+			"adc": "ADC5",
+			"i2c": "SDA"
+		}
+	},
+	"connector38": {
+		"side": "right",
+		"fn": {
+			"pin": 27,
+			"digital": 18,
+			"analog": "A4",
+			"pcint": "PCINT12",
+			"adc": "ADC4",
+			"i2c": "SCL"
+		}
+	},
+	"connector39": {
 		"side": "right",
 		"fn": {
 			"pin": 26,
@@ -67,7 +93,7 @@
 			"adc": "ADC3"
 		}
 	},
-	"connector30": {
+	"connector40": {
 		"side": "right",
 		"fn": {
 			"pin": 25,
@@ -77,7 +103,7 @@
 			"adc": "ADC2"
 		}
 	},
-	"connector31": {
+	"connector41": {
 		"side": "right",
 		"fn": {
 			"pin": 24,
@@ -87,7 +113,7 @@
 			"adc": "ADC1"
 		}
 	},
-	"connector32": {
+	"connector42": {
 		"side": "right",
 		"fn": {
 			"pin": 23,
@@ -97,7 +123,14 @@
 			"adc": "ADC0"
 		}
 	},
-	"connector33": {
+	"connector43": {
+		"side": "right",
+		"fn": {
+			"pin": 21,
+			"system": "AREF"
+		}
+	},
+	"connector45": {
 		"side": "right",
 		"fn": {
 			"pin": 17,
@@ -107,8 +140,8 @@
 			"led": "LED"
 		}
 	},
-	"connector34": {
-		"side": "right",
+	"connector30": {
+		"side": "left",
 		"fn": {
 			"pin": 16,
 			"digital": "12",
@@ -116,8 +149,8 @@
 			"pcint": "PCINT4"
 		}
 	},
-	"connector35": {
-		"side": "right",
+	"connector29": {
+		"side": "left",
 		"fn": {
 			"pin": 15,
 			"digital": "11",
@@ -131,8 +164,8 @@
 			"pwm": true
 		}
 	},
-	"connector36": {
-		"side": "right",
+	"connector28": {
+		"side": "left",
 		"fn": {
 			"pin": 14,
 			"digital": "10",
@@ -146,7 +179,7 @@
 			"pwm": true
 		}
 	},
-	"connector37": {
+	"connector27": {
 		"side": "left",
 		"fn": {
 			"pin": 13,
@@ -160,7 +193,7 @@
 			"pwm": true
 		}
 	},
-	"connector38": {
+	"connector26": {
 		"side": "left",
 		"fn": {
 			"pin": 12,
@@ -168,7 +201,7 @@
 			"pcint": "PCINT0"
 		}
 	},
-	"connector39": {
+	"connector25": {
 		"side": "left",
 		"fn": {
 			"pin": 11,
@@ -179,7 +212,7 @@
 			"comparator": "AIN1"
 		}
 	},
-	"connector40": {
+	"connector24": {
 		"side": "left",
 		"fn": {
 			"pin": 10,
@@ -194,7 +227,7 @@
 			"pwm": true
 		}
 	},
-	"connector41": {
+	"connector23": {
 		"side": "left",
 		"fn": {
 			"pin": 9,
@@ -208,7 +241,7 @@
 			"pwm": true
 		}
 	},
-	"connector42": {
+	"connector22": {
 		"side": "left",
 		"fn": {
 			"pin": 2,
@@ -221,7 +254,7 @@
 		}
 	},
 
-	"connector43": {
+	"connector21": {
 		"side": "left",
 		"fn": {
 			"pin": 1,
@@ -236,7 +269,7 @@
 			"pwm": true
 		}
 	},
-	"connector44": {
+	"connector20": {
 		"side": "left",
 		"fn": {
 			"pin": 32,
@@ -245,7 +278,7 @@
 			"pcint": "PCINT18"
 		}
 	},
-	"connector45": {
+	"connector19": {
 		"side": "left",
 		"fn": {
 			"gnd": "GROUND"
@@ -259,19 +292,19 @@
 			"pcint": "PCINT14"
 		}
 	},
-	"connector47": {
+	"connector17": {
 		"side": "left",
 		"fn": {
-			"pin": 2,
+			"pin": 30,
 			"digital": "0",
 			"uart": "RX",
 			"pcint": "PCINT16"
 		}
 	},
-	"connector48": {
+	"connector16": {
 		"side": "left",
 		"fn": {
-			"pin": 3,
+			"pin": 31,
 			"digital": "1",
 			"uart": "TX",
 			"pcint": "PCINT17"

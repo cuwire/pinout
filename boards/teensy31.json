@@ -1,0 +1,290 @@
+{
+	"cuwire": {
+		"meta": {
+			"reference": ["connector20", "connector19"],
+			"labelOffsetMulX": 1
+		}
+	},
+	"connector19": {
+		"side": "right",
+		"fn": {
+			"x-pin": 28,
+			"digital": 13,
+			"led": "LED",
+			"spi": "SCK"
+		}
+	},
+	"connector20": {
+		"side": "right",
+		"fn": {
+			"x-pin": 27,
+			"digital": 14,
+			"analog": "A0",
+			"alt-spi": "SCK"
+		}
+	},
+
+	"connector21": {
+		"side": "right",
+		"fn": {
+			"x-pin": 26,
+			"digital": "15",
+			"analog": "A1",
+			"alt-spi": "CS"
+		},
+		"flags": {
+			"touch": true
+		}
+	},
+	"connector22": {
+		"side": "right",
+		"fn": {
+			"x-pin": 28,
+			"digital": 16,
+			"analog": "A2",
+			"alt-i2c-1": "SCL"
+		},
+		"flags": {
+			"touch": true
+		}
+	},
+	"connector23": {
+		"side": "right",
+		"fn": {
+			"x-pin": 28,
+			"digital": 17,
+			"analog": "A3",
+			"alt-i2c-1": "SDA"
+		},
+		"flags": {
+			"touch": true
+		}
+	},
+
+	"connector24": {
+		"side": "right",
+		"fn": {
+			"x-pin": 28,
+			"digital": 18,
+			"analog": "A4",
+			"i2c-1": "SCL"
+		},
+		"flags": {
+			"touch": true
+		}
+	},
+	"connector25": {
+		"side": "right",
+		"fn": {
+			"x-pin": 28,
+			"digital": 19,
+			"analog": "A5",
+			"i2c-1": "SDA"
+		},
+		"flags": {
+			"touch": true
+		}
+	},
+	"connector26": {
+		"side": "right",
+		"fn": {
+			"x-pin": 28,
+			"digital": 20,
+			"analog": "A6",
+			"alt-spi": "CS"
+		},
+		"flags": {
+			"pwm": true
+		}
+	},
+	"connector27": {
+		"side": "right",
+		"fn": {
+			"x-pin": 28,
+			"digital": 21,
+			"analog": "A7",
+			"alt-spi": "CS",
+			"alt-uart-1": "RX"
+		},
+		"flags": {
+			"pwm": true
+		}
+	},
+
+	"connector28": {
+		"side": "right",
+		"fn": {
+			"x-pin": 28,
+			"digital": 22,
+			"analog": "A8",
+			"alt-spi": "CS"
+		},
+		"flags": {
+			"pwm": true,
+			"touch": true
+		}
+	},
+	"connector29": {
+		"side": "right",
+		"fn": {
+			"x-pin": 28,
+			"digital": 22,
+			"analog": "A9",
+			"alt-spi": "CS"
+		},
+		"flags": {
+			"pwm": true,
+			"touch": true
+		}
+	},
+	"connector30": {
+		"side": "right",
+		"fn": {
+			"power": "3.3V"
+		}
+	},
+	"connector31": {
+		"side": "right",
+		"fn": {
+			"gnd": "AGROUND"
+		}
+	},
+	"connector32": {
+		"side": "right",
+		"fn": {
+			"power": "VIN"
+		}
+	},
+	"connector13": {
+		"side": "left",
+		"fn": {
+			"x-pin": 28,
+			"digital": 12,
+			"spi": "MISO"
+		}
+	},
+	"connector12": {
+		"side": "left",
+		"fn": {
+			"x-pin": 28,
+			"digital": 11,
+			"spi": "MOSI"
+		}
+	},
+	"connector11": {
+		"side": "left",
+		"fn": {
+			"x-pin": 28,
+			"digital": 10,
+			"spi": "CS",
+			"uart-2": "TX"
+		},
+		"flags": {
+			"pwm": true
+		}
+	},
+	"connector10": {
+		"side": "left",
+		"fn": {
+			"x-pin": 28,
+			"digital": 9,
+			"alt-spi": "CS",
+			"uart-2": "RX"
+		},
+		"flags": {
+			"pwm": true
+		}
+	},
+	"connector9": {
+		"side": "left",
+		"fn": {
+			"x-pin": 28,
+			"digital": 8,
+			"alt-spi": "MISO",
+			"uart-3": "TX"
+		}
+	},
+	"connector8": {
+		"side": "left",
+		"fn": {
+			"x-pin": 28,
+			"digital": 7,
+			"alt-spi": "MOSI",
+			"uart-3": "RX"
+		}
+	},
+	"connector7": {
+		"side": "left",
+		"fn": {
+			"x-pin": 28,
+			"digital": 6,
+			"alt-spi": "CS"
+		},
+		"flags": {
+			"pwm": true
+		}
+	},
+	"connector6": {
+		"side": "left",
+		"fn": {
+			"x-pin": 28,
+			"digital": 5,
+			"alt-uart-1": "TX"
+		},
+		"flags": {
+			"pwm": true
+		}
+	},
+	"connector5": {
+		"side": "left",
+		"fn": {
+			"x-pin": 28,
+			"digital": 4,
+			"uart-CAN": "RX"
+		},
+		"flags": {
+			"pwm": true
+		}
+	},
+	"connector4": {
+		"side": "left",
+		"fn": {
+			"x-pin": 28,
+			"digital": 3,
+			"uart-CAN": "TX"
+		},
+		"flags": {
+			"pwm": true
+		}
+	},
+	"connector3pin": {
+		"side": "left",
+		"fn": {
+			"x-pin": 28,
+			"digital": 2,
+			"alt-spi": "CS"
+		}
+	},
+	"connector2pin": {
+		"side": "left",
+		"fn": {
+			"x-pin": 28,
+			"digital": 1,
+			"uart-1": "TX"
+		},
+		"flags": {
+			"touch": true
+		}
+	},
+	"connector1pin": {
+		"side": "left",
+		"fn": {
+			"x-pin": 28,
+			"digital": 0,
+			"uart-1": "RX"
+		},
+		"flags": {
+			"touch": true
+		}
+	}
+}

@@ -2,6 +2,10 @@ g.cuwire text {
 	fill: white;
 }
 
+g.cuwire .alt text {
+	fill: silver;
+}
+
 g.cuwire rect {
 	fill: gray;
 	stroke: silver;
@@ -51,6 +55,9 @@ g.cuwire .pcint text, g.cuwire .spi text, g.cuwire .i2c text, g.cuwire .uart tex
 	fill: #454343;
 }
 
+g.cuwire .spi.alt text, g.cuwire .i2c.alt text, g.cuwire .uart.alt text {
+	fill: #9a9a9a;
+}
 g.cuwire .power rect {
 	fill: red;
 	stroke: silver;

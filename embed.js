@@ -10,6 +10,8 @@ function boardChanged () {
 	var select = document.getElementById ('boardId');
 	console.log (select.selectedIndex, select.value);
 
+	window.location.hash = '#' + select.value;
+
 	var boardImg = document.getElementById ('boardImage');
 	boardImg.style.visibility = null;
 	boardImg.setAttribute ('data', select.value + '.svg');
@@ -45,6 +47,9 @@ function drawLabels (svgDoc, pinSelector, side, labels) {
 	var labelMaxX = 0;
 
 	var connectorNode = svgDoc.querySelector ('[id^='+pinSelector+']');
+
+	if (!connectorNode)
+		return;
 
 	var connectorCenter = nodeCentralPoint (connectorNode);
 
@@ -255,7 +260,7 @@ function showLabels (exclude) {
 
 			var refPin1 = sss.querySelector ('[id^='+meta.reference[1]+']');
 
-			console.log (meta.reference[0], refPin0, meta.reference[1], refPin1);
+			// console.log (meta.reference[0], refPin0, meta.reference[1], refPin1);
 
 			var refPin0CP = nodeCentralPoint (refPin0);
 			var refPin1CP = nodeCentralPoint (refPin1);
@@ -283,11 +288,43 @@ function showLabels (exclude) {
 				var fnList = [];
 
 				Object.keys (fn).forEach (function (fnName) {
+
+					if (fnName.match(/^x\-/)) {
+						return;
+					}
+
 					if (exclude[fnName]) {
 						return;
 					}
-					fnList.push ({"class": fnName, title: fn[fnName]});
+
+					var pinData = {"class": fnName, title: fn[fnName]}
+					var complex = fnName.match (/^(alt-)?([^\-]+)-([^\-]+)?$/);
+					if (complex) {
+						if (complex[2] === 'alt') {
+							complex.shift();
+						}
+						pinData["class"] = complex[2];
+						if (complex[1]) {
+							pinData["class"] += " alt";
+						}
+						if (complex[3]) {
+							pinData.title = pinData.title + complex[3];
+						}
+					}
+
+					fnList.push (pinData);
 				});
+
+				if (brdData[connector].flags) {
+					if (brdData[connector].flags.pwm) {
+						fnList.push ({"class": "pwm", title: "~"});
+					}
+
+					if (brdData[connector].flags.touch) {
+						fnList.push ({"class": "touch", title: "☜"});
+					}
+				}
+
 //				console.log (fn, fnList);
 				drawLabels (sss, connector, side, fnList);
 			});
@@ -303,10 +340,26 @@ function showLabels (exclude) {
 
 
 document.addEventListener("DOMContentLoaded", function(event) {
-	var svgO = document.querySelector ('object');
-	svgO.addEventListener ('load', function () {
 
-		var svgDoc = svgO.getSVGDocument();
+	var boardImg = document.getElementById ('boardImage');
+
+	if (window.location.hash) {
+
+		var boardId = window.location.hash.replace ('#', '');
+
+		boardImg.style.visibility = null;
+		boardImg.setAttribute ('data', boardId + '.svg');
+		boardImg.style.visibility = "visible";
+
+		dataFile = boardId + '.json';
+
+		var boardSelectForm = document.getElementById ('boardId');
+		boardSelectForm.value = boardId;
+	}
+
+	boardImg.addEventListener ('load', function () {
+
+		var svgDoc = boardImg.getSVGDocument();
 		var linkElm = svgDoc.createElementNS("http://www.w3.org/1999/xhtml", "link");
 		linkElm.setAttribute("href", "embed.css");
 		linkElm.setAttribute("type", "text/css");

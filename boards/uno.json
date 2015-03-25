@@ -1,0 +1,319 @@
+{
+	"cuwire": {
+		"meta": {
+			"reference": ["connector0", "connector1"],
+			"labelOffsetMulX": 1
+		}
+	},
+	"connector5": {
+		"side": "left",
+		"fn": {
+			"pin": 28,
+			"analog": "A5",
+			"pcint": "PCINT13",
+			"adc": "ADC5",
+			"i2c": "SDA"
+		},
+		"fnlong": {
+		}
+	},
+	"connector4": {
+		"side": "left",
+		"fn": {
+			"pin": 27,
+			"analog": "A4",
+			"pcint": "PCINT12",
+			"adc": "ADC4",
+			"i2c": "SCL"
+		},
+		"fnlong": {
+		}
+	},
+
+	"connector3": {
+		"side": "left",
+		"fn": {
+			"pin": 26,
+			"digital": "17",
+			"analog": "A3",
+			"pcint": "PCINT11",
+			"adc": "ADC3"
+		}
+	},
+	"connector2": {
+		"side": "left",
+		"fn": {
+			"pin": 25,
+			"digital": "16",
+			"analog": "A2",
+			"pcint": "PCINT10",
+			"adc": "ADC2"
+		}
+	},
+	"connector1": {
+		"side": "left",
+		"fn": {
+			"pin": 24,
+			"digital": "15",
+			"analog": "A1",
+			"pcint": "PCINT9",
+			"adc": "ADC1"
+		}
+	},
+	"connector0": {
+		"side": "left",
+		"fn": {
+			"pin": 23,
+			"digital": "14",
+			"analog": "A0",
+			"pcint": "PCINT8",
+			"adc": "ADC0"
+		}
+	},
+	"connector60": {
+		"side": "right",
+		"fn": {
+			"pin": 27,
+			"analog": "A4",
+			"pcint": "PCINT12",
+			"adc": "ADC4",
+			"i2c": "SCL"
+		},
+		"fnlong": {
+		}
+	},
+	"connector59": {
+		"side": "right",
+		"fn": {
+			"pin": 28,
+			"analog": "A5",
+			"pcint": "PCINT13",
+			"adc": "ADC5",
+			"i2c": "SDA"
+		},
+		"fnlong": {
+		}
+	},
+	"connector58": {
+		"side": "right",
+		"fn": {
+			"pin": 21,
+			"system": "AREF"
+		}
+	},
+	"connector57": {
+		"side": "right",
+		"fn": {
+			"gnd": "GROUND"
+		}
+	},
+	"connector56": {
+		"side": "right",
+		"fn": {
+			"pin": 19,
+			"digital": "13",
+			"spi": "SCK",
+			"pcint": "PCINT5",
+			"led": "LED"
+		}
+	},
+	"connector55": {
+		"side": "right",
+		"fn": {
+			"pin": 18,
+			"digital": "12",
+			"spi": "MISO",
+			"pcint": "PCINT4"
+		}
+	},
+	"connector54": {
+		"side": "right",
+		"fn": {
+			"pin": 17,
+			"digital": "11",
+			"spi": "MOSI",
+			"pcint": "PCINT3"
+		},
+		"fnlong": {
+			"timerpin": "OC2A"
+		},
+		"flags": {
+			"pwm": true
+		}
+	},
+	"connector53": {
+		"side": "right",
+		"fn": {
+			"pin": 16,
+			"digital": "10",
+			"spi": "SS",
+			"pcint": "PCINT2"
+		},
+		"fnlong": {
+			"timerpin": "OC1B"
+		},
+		"flags": {
+			"pwm": true
+		}
+	},
+	"connector52": {
+		"side": "right",
+		"fn": {
+			"pin": 15,
+			"digital": "9",
+			"pcint": "PCINT1"
+		},
+		"fnlong": {
+			"timerpin": "OC1A"
+		},
+		"flags": {
+			"pwm": true
+		}
+	},
+	"connector51": {
+		"side": "right",
+		"fn": {
+			"pin": 14,
+			"digital": "8",
+			"pcint": "PCINT0"
+		}
+	},
+	"connector61": {
+		"side": "right",
+		"fn": {
+			"pin": 2,
+			"digital": "0",
+			"uart": "RX",
+			"pcint": "PCINT16"
+		}
+	},
+	"connector62": {
+		"side": "right",
+		"fn": {
+			"pin": 3,
+			"digital": "1",
+			"uart": "TX",
+			"pcint": "PCINT17"
+		}
+	},
+	"connector63": {
+		"side": "right",
+		"fn": {
+			"pin": 4,
+			"digital": "2",
+			"int": "INT0",
+			"pcint": "PCINT18"
+		}
+	},
+	"connector64": {
+		"side": "right",
+		"fn": {
+			"pin": 5,
+			"digital": "3",
+			"int": "INT1",
+			"pcint": "PCINT19"
+		},
+		"fnlong": {
+			"timerpin": "OC2B"
+		},
+		"flags": {
+			"pwm": true
+		}
+	},
+	"connector65": {
+		"side": "right",
+		"fn": {
+			"pin": 6,
+			"digital": "4",
+			"pcint": "PCINT20"
+		},
+		"fnlong": {
+			"timercounter": "T0",
+			"xck": "XCK"
+		}
+	},
+	"connector66": {
+		"side": "right",
+		"fn": {
+			"pin": 11,
+			"digital": "5",
+			"pcint": "PCINT21"
+		},
+		"fnlong": {
+			"timercounter": "T1"
+		},
+		"flags": {
+			"pwm": true
+		}
+	},
+	"connector67": {
+		"side": "right",
+		"fn": {
+			"pin": 12,
+			"digital": "6",
+			"pcint": "PCINT22"
+		},
+		"fnlong": {
+			"comparator": "AIN0",
+			"timerpin": "OC0A"
+		},
+		"flags": {
+			"pwm": true
+		}
+	},
+	"connector68": {
+		"side": "right",
+		"fn": {
+			"pin": 13,
+			"digital": "7",
+			"pcint": "PCINT23"
+		},
+		"fnlong": {
+			"comparator": "AIN1"
+		}
+	},
+	"connector84": {
+		"side": "left",
+		"fn": {
+			"system": "IOREF"
+		}
+	},
+	"connector85": {
+		"side": "left",
+		"fn": {
+			"pin": 1,
+			"system": "RESET",
+			"pcint": "PCINT14"
+		}
+	},
+	"connector86": {
+		"side": "left",
+		"fn": {
+			"power": "3.3V"
+		}
+	},
+	"connector87": {
+		"side": "left",
+		"fn": {
+			"power": "5V"
+		}
+	},
+	"connector88": {
+		"side": "left",
+		"fn": {
+			"gnd": "GROUND"
+		}
+	},
+	"connector89": {
+		"side": "left",
+		"fn": {
+			"gnd": "GROUND"
+		}
+	},
+	"connector90": {
+		"side": "left",
+		"fn": {
+			"power": "VIN"
+		}
+	}
+}
