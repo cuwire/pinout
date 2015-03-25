@@ -18,7 +18,7 @@ function boardChanged () {
 	boardImg.setAttribute ('data', baseUrl + select.value + '.svg');
 	boardImg.style.visibility = "visible";
 
-	dataFile = baseUrl + select.value + '.json';
+	dataFile = select.value + '.json';
 	// showLabels();
 }
 
@@ -76,6 +76,7 @@ function drawLabels (svgDoc, pinSelector, side, labels) {
 		} else {
 			labelMeta.x = pinX;
 			labelMeta.y = pinY;
+			labelMeta.begin = true;
 		}
 
 		labelOffset = labelForPin (svgDoc, g, side, labelMeta);
@@ -156,7 +157,7 @@ function labelForPin (svgDoc, containerGroup, side, labelMeta) {
 
 	containerGroup.appendChild(g);
 
-	var textOffset = (side === 'right' ? 1 : -1)*fontSize;
+	var textOffset = (side === 'right' ? 1 : -1) * fontSize * (labelMeta.begin ? 2 : 1);
 	var text = createSVGNode (svgDoc, "text", {
 		x: pinX + textOffset,
 		y: pinY,
@@ -249,7 +250,7 @@ function showLabels (exclude) {
 	// TODO: get names from: https://github.com/fritzing/fritzing-parts/blob/master/core/Arduino-Pro-Mini-v13-a4%2B5.fzp
 
 	var req = new XMLHttpRequest ();
-	req.open('GET', dataFile, true);
+	req.open('GET', baseUrl + dataFile, true);
 	req.addEventListener ('load', function() {
 		if (req.status == 200) {
 			brdData = JSON.parse (req.responseText);
@@ -350,7 +351,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 	var url = boardImg.data;
 	baseUrl = url.replace (/[^\/]+\.svg$/, '')
 
-	console.log ();
+	console.log (baseUrl);
 
 	if (window.location.hash) {
 
@@ -360,7 +361,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 		boardImg.setAttribute ('data', baseUrl + boardId + '.svg');
 		boardImg.style.visibility = "visible";
 
-		dataFile = baseUrl + boardId + '.json';
+		dataFile = boardId + '.json';
 
 		var boardSelectForm = document.getElementById ('boardId');
 		boardSelectForm.value = boardId;
