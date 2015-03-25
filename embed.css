@@ -1,0 +1,71 @@
+g.cuwire text {
+	fill: white;
+}
+
+g.cuwire rect {
+	fill: gray;
+	stroke: silver;
+}
+
+g.cuwire .gnd rect {
+	fill: black;
+	stroke: silver;
+}
+
+g.cuwire .digital rect {
+	fill: #065598;
+	stroke: silver;
+}
+
+g.cuwire .analog-rw rect {
+	fill: #640064;
+	stroke: silver;
+}
+
+g.cuwire .analog rect {
+	fill: #b204b2;
+	stroke: silver;
+}
+
+g.cuwire .spi rect {
+	fill: #31dcfc;
+	stroke: silver;
+}
+
+g.cuwire .uart rect {
+	fill: #4af772;
+	stroke: silver;
+}
+
+g.cuwire .i2c rect {
+	fill: #ff9a25;
+	stroke: silver;
+}
+
+g.cuwire .pcint rect {
+	fill: #ffffcc;
+	stroke: silver;
+}
+
+g.cuwire .pcint text, g.cuwire .spi text, g.cuwire .i2c text, g.cuwire .uart text {
+	fill: #454343;
+}
+
+g.cuwire .power rect {
+	fill: red;
+	stroke: silver;
+}
+
+g.cuwire .system rect {
+	fill: white;
+	stroke: silver;
+}
+
+g.cuwire .system text {
+	fill: black;
+}
+
+g.cuwire line {
+	stroke: silver;
+	stroke-linecap: round;
+}

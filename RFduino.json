@@ -1,0 +1,90 @@
+{
+	"cuwire": {
+		"meta": {
+			"reference": ["connector5", "connector6"],
+			"labelOffsetMulX": 1
+		}
+	},
+	"connector11": {
+		"side": "right",
+		"fn": {
+			"digital": "6",
+			"analog-rw": "6",
+			"spi": "SS",
+			"i2c": "SDA"
+		}
+	},
+	"connector10": {
+		"side": "right",
+		"fn": {
+			"digital": "5",
+			"analog-rw": "5",
+			"spi": "MOSI",
+			"i2c": "SCL"
+		}
+	},
+	"connector9": {
+		"side": "right",
+		"fn": {
+			"digital": "4",
+			"analog-rw": "4",
+			"spi": "SCK"
+		}
+	},
+	"connector8": {
+		"side": "right",
+		"fn": {
+			"digital": "3",
+			"analog-rw": "3",
+			"spi": "MISO"
+		}
+	},
+	"connector7": {
+		"side": "right",
+		"fn": {
+			"digital": "2",
+			"analog-rw": "2"
+		}
+	},
+	"connector6": {
+		"side": "left",
+		"fn": {
+			"digital": "1",
+			"analog-rw": "1",
+			"uart": "TX"
+		}
+	},
+	"connector5": {
+		"side": "left",
+		"fn": {
+			"digital": "0",
+			"analog-rw": "0",
+			"uart": "RX",
+			"ref": "AREF"
+		}
+	},
+	"connector4": {
+		"side": "left",
+		"fn": {
+			"system": "FACTORY"
+		}
+	},
+	"connector3": {
+		"side": "left",
+		"fn": {
+			"system": "RESET"
+		}
+	},
+	"connector2": {
+		"side": "left",
+		"fn": {
+			"power": "VCC"
+		}
+	},
+	"connector0": {
+		"side": "left",
+		"fn": {
+			"gnd": "GROUND"
+		}
+	}
+}
