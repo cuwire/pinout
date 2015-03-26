@@ -6,6 +6,28 @@ if (boardImg) {
 
 var baseUrl = '';
 var dataFile = 'pro.json';
+var embedCSSText = '';
+
+function showSaveable () {
+	var boardImg = document.querySelector ('object');
+
+	var svgDoc = boardImg.getSVGDocument();
+
+	var style = createSVGNode (svgDoc, "style");
+	style.textContent = embedCSSText;
+	svgDoc.documentElement.insertBefore (style, svgDoc.documentElement.firstElementChild);
+
+	var serializer = new XMLSerializer();
+	var svg_blob = new Blob(
+		[serializer.serializeToString(svgDoc)],
+		{'type': "image/svg+xml"}
+	);
+
+	var url = URL.createObjectURL(svg_blob);
+
+	var svg_win = window.open(url, "svg_win");
+
+}
 
 function boardChanged () {
 	var select = document.getElementById ('boardId');
@@ -366,15 +388,25 @@ function showLabels (exclude) {
 
 document.addEventListener("DOMContentLoaded", function(event) {
 
-//	var embedScript = document.getElementById ('cuwire-pinout');
-//	var embedCSS = embedScript.getAttribute ('src', 2).replace (/js$/, 'css');
+	var embedScript = document.getElementById ('cuwire-pinout');
+	var embedCSS = embedScript.getAttribute ('src', 2).replace (/js$/, 'css');
+
+	var req = new XMLHttpRequest ();
+	req.open('GET', embedCSS, true);
+	req.addEventListener ('load', function() {
+		if (req.status == 200) {
+			embedCSSText = req.responseText;
+			document.getElementById ('open-for-save').disabled = false;
+		}
+	});
+	req.send (null);
 
 	var boardImg = document.getElementById ('boardImage');
 
 	var url = boardImg.data;
 	baseUrl = url.replace (/[^\/]+\.svg$/, '')
 
-	console.log (baseUrl);
+	console.log (baseUrl, embedCSS);
 
 	if (window.location.search) {
 		window.location.hash = "#" + window.location.search.replace (/^\?/, '');

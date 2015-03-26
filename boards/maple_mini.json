@@ -1,0 +1,425 @@
+{
+	"cuwire": {
+		"meta": {
+			"reference": ["connector7pin", "connector6pin"],
+			"labelOffsetMulX": 1
+		}
+	},
+	"connector0pin": {
+		"side": "right",
+		"fn": {
+			"power": "VIN"
+		}
+	},
+	"connector1pin": {
+		"side": "right",
+		"fn": {
+			"digital": "D0",
+			"x-gpio": "PB11",
+			"i2c-2": "SDA",
+			"uart-3": "RX"
+		},
+		"flags": {
+			"5v": true
+		}
+	},
+	"connector2pin": {
+		"side": "right",
+		"fn": {
+			"digital": "D1",
+			"x-gpio": "PB10",
+			"i2c-2": "SCL",
+			"uart-3": "TX"
+		},
+		"flags": {
+			"5v": true
+		}
+	},
+	"connector3pin": {
+		"side": "right",
+		"fn": {
+			"digital": "D2",
+			"x-gpio": "PB2"
+		},
+		"flags": {
+			"5v": true
+		}
+	},
+	"connector4pin": {
+		"side": "right",
+		"fn": {
+			"digital": "D3",
+			"x-gpio": "PB0",
+			"adc": "ADC8"
+		},
+		"flags": {
+			"pwm": true,
+			"timer-3": "CH3"
+		}
+	},
+	"connector5pin": {
+		"side": "right",
+		"fn": {
+			"digital": "D4",
+			"x-gpio": "PA7",
+			"spi-1": "MOSI",
+			"adc": "ADC7"
+		},
+		"flags": {
+			"pwm": true,
+			"timer-3": "CH2"
+		}
+	},
+	"connector6pin": {
+		"side": "right",
+		"fn": {
+			"digital": "D5",
+			"x-gpio": "PA6",
+			"spi-1": "MISO",
+			"adc": "ADC6"
+
+		},
+		"flags": {
+			"pwm": true,
+			"timer-3": "CH1"
+		}
+	},
+	"connector7pin": {
+		"side": "right",
+		"fn": {
+			"digital": "D6",
+			"x-gpio": "PA5",
+			"spi-1": "SCK",
+			"adc": "ADC5"
+		}
+	},
+	"connector8pin": {
+		"side": "right",
+		"fn": {
+			"digital": "D7",
+			"x-gpio": "PA4",
+			"spi-1": "SS",
+			"uart-2": "CK",
+			"adc": "ADC4"
+		}
+	},
+	"connector9pin": {
+		"side": "right",
+		"fn": {
+			"digital": "D8",
+			"x-gpio": "PA3",
+			"uart-2": "RX",
+			"adc": "ADC3"
+		},
+		"flags": {
+			"pwm": true,
+			"timer-2": "CH4"
+		}
+	},
+	"connector10pin": {
+		"side": "right",
+		"fn": {
+			"digital": "D9",
+			"x-gpio": "PA2",
+			"uart-2": "TX",
+			"adc": "ADC2"
+		},
+		"flags": {
+			"pwm": true,
+			"timer-2": "CH3"
+		}
+	},
+	"connector11pin": {
+		"side": "right",
+		"fn": {
+			"digital": "D10",
+			"x-gpio": "PA1",
+			"uart-2": "RTS",
+			"adc": "ADC1"
+		},
+		"flags": {
+			"pwm": true,
+			"timer-2": "CH2"
+		}
+	},
+	"connector12pin": {
+		"side": "right",
+		"fn": {
+			"digital": "D11",
+			"x-gpio": "PA0",
+			"uart-2": "CTS",
+			"adc": "ADC0"
+		},
+		"flags": {
+			"pwm": true,
+			"timer-2": "CH1_ETR"
+		}
+	},
+	"connector13pin": {
+		"side": "right",
+		"fn": {
+			"system": "RESET"
+		}
+	},
+	"connector14pin": {
+		"side": "right",
+		"fn": {
+			"digital": "D12",
+			"x-gpio": "PC15"
+		}
+	},
+	"connector15pin": {
+		"side": "right",
+		"fn": {
+			"digital": "D13",
+			"x-gpio": "PC14"
+		}
+	},
+	"connector16pin": {
+		"side": "right",
+		"fn": {
+			"digital": "D14",
+			"x-gpio": "PC13"
+		}
+	},
+	"connector17pin": {
+		"side": "right",
+		"fn": {
+			"power": "VBAT"
+		}
+	},
+	"connector18pin": {
+		"side": "right",
+		"fn": {
+			"adc": "VA-"
+		}
+	},
+	"connector19pin": {
+		"side": "right",
+		"fn": {
+			"adc": "VA+"
+		}
+	},
+	"connector20pin": {
+		"side": "left",
+		"fn": {
+			"power": "VCC"
+		}
+	},
+	"connector21pin": {
+		"side": "left",
+		"fn": {
+			"gnd": "GROUND"
+		}
+	},
+	"connector22pin": {
+		"side": "left",
+		"fn": {
+			"user": "BUTTON"
+		}
+	},
+	"connector23pin": {
+		"side": "left",
+		"fn": {
+			"digital": "D15",
+			"x-gpio": "PB7",
+			"i2c-1": "SDA"
+		},
+		"flags": {
+			"pwm": true,
+			"5v": true,
+			"timer-4": "CH2"
+		}
+	},
+	"connector24pin": {
+		"side": "left",
+		"fn": {
+			"digital": "D16",
+			"x-gpio": "PB6",
+			"i2c-1": "SCL"
+		},
+		"flags": {
+			"pwm": true,
+			"5v": true,
+			"timer-4": "CH1"
+		}
+	},
+	"connector25pin": {
+		"side": "left",
+		"fn": {
+			"digital": "D17",
+			"x-gpio": "PB5",
+			"i2c-1": "SMBA"
+		}
+	},
+	"connector26pin": {
+		"side": "left",
+		"fn": {
+			"digital": "D18",
+			"x-gpio": "PB4",
+			"jtag": "!RESET"
+		},
+		"flags": {
+			"5v": true
+		}
+	},
+	"connector27pin": {
+		"side": "left",
+		"fn": {
+			"digital": "D19",
+			"x-gpio": "PB3",
+			"jtag": "DO"
+		},
+		"flags": {
+			"5v": true
+		}
+	},
+	"connector28pin": {
+		"side": "left",
+		"fn": {
+			"digital": "D20",
+			"x-gpio": "PA15",
+			"jtag": "DI"
+		},
+		"flags": {
+			"5v": true
+		}
+	},
+	"connector29pin": {
+		"side": "left",
+		"fn": {
+			"digital": "D21",
+			"x-gpio": "PA14",
+			"jtag": "SWCLK"
+		},
+		"flags": {
+			"5v": true
+		}
+	},
+	"connector30pin": {
+		"side": "left",
+		"fn": {
+			"digital": "D22",
+			"x-gpio": "PA13",
+			"jtag": "SWDIO"
+		},
+		"flags": {
+			"5v": true
+		}
+	},
+	"connector31pin": {
+		"side": "left",
+		"fn": {
+			"digital": "D23",
+			"x-gpio": "PA12",
+			"uart-1": "RTS",
+			"usb": "USB D+"
+		},
+		"flags": {
+			"5v": true,
+			"timer-1": "ETR"
+		}
+	},
+	"connector32pin": {
+		"side": "left",
+		"fn": {
+			"digital": "D24",
+			"x-gpio": "PA11",
+			"uart-1": "CTS",
+			"usb": "USB D-"
+		},
+		"flags": {
+			"5v": true,
+			"timer-1": "CH4"
+		}
+	},
+	"connector33pin": {
+		"side": "left",
+		"fn": {
+			"digital": "D25",
+			"x-gpio": "PA10",
+			"uart-1": "RX"
+		},
+		"flags": {
+			"5v": true,
+			"pwm": true,
+			"timer-1": "CH3"
+		}
+	},
+	"connector34pin": {
+		"side": "left",
+		"fn": {
+			"digital": "D26",
+			"x-gpio": "PA9",
+			"uart-1": "TX"
+		},
+		"flags": {
+			"5v": true,
+			"pwm": true,
+			"timer-1": "CH2"
+		}
+	},
+	"connector35pin": {
+		"side": "left",
+		"fn": {
+			"digital": "D27",
+			"x-gpio": "PA8"
+		},
+		"flags": {
+			"5v": true,
+			"pwm": true,
+			"timer-1": "CH1"
+		}
+	},
+	"connector36pin": {
+		"side": "left",
+		"fn": {
+			"digital": "D28",
+			"x-gpio": "PB15",
+			"spi-2": "MOSI"
+		},
+		"flags": {
+			"5v": true
+		}
+	},
+	"connector37pin": {
+		"side": "left",
+		"fn": {
+			"digital": "D29",
+			"x-gpio": "PB14",
+			"spi-2": "MISO",
+			"uart-3": "RTS"
+		},
+		"flags": {
+			"5v": true
+		}
+	},
+	"connector38pin": {
+		"side": "left",
+		"fn": {
+			"digital": "D30",
+			"x-gpio": "PB13",
+			"spi-2": "SCK",
+			"uart-3": "CTS"
+		},
+		"flags": {
+			"5v": true
+		}
+	},
+	"connector39pin": {
+		"side": "left",
+		"fn": {
+			"digital": "D31",
+			"x-gpio": "PB12",
+			"spi-2": "SS",
+			"uart-3": "CK",
+			"i2c-2": "SMBA"
+		},
+		"flags": {
+			"5v": true,
+			"timer-1": "BKIN"
+		}
+	}
+
+
+}

@@ -59,6 +59,13 @@ g.cuwire .pcint text, g.cuwire .spi text, g.cuwire .i2c text, g.cuwire .uart tex
 g.cuwire .spi.alt text, g.cuwire .i2c.alt text, g.cuwire .uart.alt text {
 	fill: #9a9a9a;
 }
+
+g.cuwire .jtag rect {
+	fill: #571616;
+	stroke: silver;
+}
+
+
 g.cuwire .power rect {
 	fill: red;
 	stroke: silver;
