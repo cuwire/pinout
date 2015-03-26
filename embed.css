@@ -73,7 +73,8 @@ g.cuwire .system text {
 	fill: black;
 }
 
-g.cuwire line {
+g.cuwire line, g.cuwire path {
+	fill: none;
 	stroke: silver;
 	stroke-linecap: round;
 }

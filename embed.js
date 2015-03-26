@@ -38,10 +38,12 @@ var pitch;
 var fontSize;
 var rotated = 0;
 
-function drawLabels (svgDoc, pinSelector, side, labels) {
+function drawLabels (svgDoc, pinSelector, side, labels, flags) {
 	if (labels.constructor !== Array) {
 		labels = [labels];
 	}
+
+	flags = flags || {};
 
 	var labelOffset;
 	var labelMinX = 0;
@@ -77,6 +79,9 @@ function drawLabels (svgDoc, pinSelector, side, labels) {
 			labelMeta.x = pinX;
 			labelMeta.y = pinY;
 			labelMeta.begin = true;
+			if (flags.pwm) {
+				labelMeta.pwm = true;
+			}
 		}
 
 		labelOffset = labelForPin (svgDoc, g, side, labelMeta);
@@ -181,16 +186,38 @@ function labelForPin (svgDoc, containerGroup, side, labelMeta) {
 
 	// bbox = text.getBBox();
 
-	// TODO: remove stroke width from line x
-	var line = createSVGNode (svgDoc, "line", {
+	var lineRect = {
 		x1: bbox.x + (side === 'right' ? - fontSize /2 : bbox.width + fontSize /2),
 		y1: bbox.y + bbox.height / 2,
 		x2: pinX,
 		y2: pinY,
-		"stroke-width": fontSize/5,
-	});
+	};
+	// TODO: remove stroke width from line x
+	if (labelMeta.begin && labelMeta.pwm) {
+		var path = createSVGNode (svgDoc, "path", {
+			d: [
+				"M"+[lineRect.x1, lineRect.y1].join (','),
+				"l"+[(lineRect.x2-lineRect.x1)/4, 0].join (','),
+				"C"+[lineRect.x1 + (lineRect.x2-lineRect.x1)/2, lineRect.y2 - Math.abs (textOffset/2)].join (','),
+				[lineRect.x1 + (lineRect.x2-lineRect.x1)/2, lineRect.y2 + Math.abs (textOffset/2)].join (','),
+				[lineRect.x2-(lineRect.x2-lineRect.x1)/4, lineRect.y2].join (','),
+				"l"+[(lineRect.x2-lineRect.x1)/4, 0].join (','),
+			].join (' '),
+			"stroke-width": fontSize/5,
+		});
 
-	g.insertBefore (line, rect);
+		g.insertBefore (path, rect);
+	} else {
+		var line = createSVGNode (svgDoc, "line", {
+			x1: lineRect.x1,
+			x2: lineRect.x2,
+			y1: lineRect.y1,
+			y2: lineRect.y2,
+			"stroke-width": fontSize/5,
+		});
+
+		g.insertBefore (line, rect);
+	}
 
 
 	var rect = createSVGNode (svgDoc, "rect", {
@@ -295,10 +322,6 @@ function showLabels (exclude) {
 						return;
 					}
 
-					if (exclude[fnName]) {
-						return;
-					}
-
 					var pinData = {"class": fnName, title: fn[fnName]}
 					var complex = fnName.match (/^(alt-)?([^\-]+)-([^\-]+)?$/);
 					if (complex) {
@@ -314,21 +337,21 @@ function showLabels (exclude) {
 						}
 					}
 
+					if (exclude[pinData["class"]]) {
+						return;
+					}
+
 					fnList.push (pinData);
 				});
 
 				if (brdData[connector].flags) {
-					if (brdData[connector].flags.pwm) {
-						fnList.push ({"class": "pwm", title: "~"});
-					}
-
 					if (brdData[connector].flags.touch) {
 						fnList.push ({"class": "touch", title: "☜"});
 					}
 				}
 
 //				console.log (fn, fnList);
-				drawLabels (sss, connector, side, fnList);
+				drawLabels (sss, connector, side, fnList, brdData[connector].flags);
 			});
 		}
 

@@ -18,6 +18,9 @@
 			"uart": "RTS",
 			"uart-2": "TX",
 			"spi": "HSPICS"
+		},
+		"flags": {
+			"pwm": true
 		}
 	},
 	"connector2pin": {
@@ -25,25 +28,38 @@
 		"fn": {
 			"gpio": "GPIO1",
 			"uart-1": "TX"
+		},
+		"flags": {
+			"pwm": true
 		}
 	},
 	"connector3pin": {
 		"side": "right",
 		"fn": {
 			"gpio": "GPIO0",
-			"system": "FLASH"
+			"system": "FLASH",
+			"alt-spi": "SPICS2"
+		},
+		"flags": {
+			"pwm": true
 		}
 	},
 	"connector4pin": {
 		"side": "right",
 		"fn": {
 			"gpio": "GPIO4"
+		},
+		"flags": {
+			"pwm": true
 		}
 	},
 	"connector5pin": {
 		"side": "right",
 		"fn": {
 			"gpio": "GPIO5"
+		},
+		"flags": {
+			"pwm": true
 		}
 	},
 	"connector6pin": {
@@ -51,6 +67,9 @@
 		"fn": {
 			"gpio": "GPIO3",
 			"uart": "RX"
+		},
+		"flags": {
+			"pwm": true
 		}
 	},
 	"connector7pin": {
@@ -58,7 +77,10 @@
 		"fn": {
 			"gpio": "GPIO1",
 			"uart": "TX",
-			"x-spics": "SPICS2"
+			"alt-spi": "SPICS1"
+		},
+		"flags": {
+			"pwm": true
 		}
 	},
 	"connector8pin": {
@@ -74,6 +96,9 @@
 			"spi": "HSPID",
 			"uart": "CTS",
 			"uart-2": "RX"
+		},
+		"flags": {
+			"pwm": true
 		}
 	},
 	"connector10pin": {
@@ -81,6 +106,9 @@
 		"fn": {
 			"gpio": "GPIO12",
 			"spi": "HSPIQ"
+		},
+		"flags": {
+			"pwm": true
 		}
 	},
 	"connector11pin": {
@@ -88,19 +116,23 @@
 		"fn": {
 			"gpio": "GPIO14",
 			"spi": "HSPICLK"
+		},
+		"flags": {
+			"pwm": true
 		}
 	},
 	"connector12pin": {
 		"side": "left",
 		"fn": {
 			"gpio": "GPIO16",
-			"system": "WAKE"
+			"system": "WAKE",
+			"user": "USER"
 		}
 	},
 	"connector13pin": {
 		"side": "left",
 		"fn": {
-			"system": "CH_PD"
+			"system": "ENABLE"
 		}
 	},
 	"connector14pin": {
