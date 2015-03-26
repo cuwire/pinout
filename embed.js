@@ -353,6 +353,11 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
 	console.log (baseUrl);
 
+	if (window.location.search) {
+		window.location.hash = "#" + window.location.search.replace (/^\?/, '');
+		window.location.search = '';
+	}
+
 	if (window.location.hash) {
 
 		var boardId = window.location.hash.replace ('#', '');

@@ -1,0 +1,120 @@
+{
+	"cuwire": {
+		"meta": {
+			"reference": ["connector1pin", "connector0pin"],
+			"labelOffsetMulX": 1
+		}
+	},
+	"connector0pin": {
+		"side": "right",
+		"fn": {
+			"gnd": "GROUND"
+		}
+	},
+	"connector1pin": {
+		"side": "right",
+		"fn": {
+			"gpio": "GPIO15",
+			"uart": "RTS",
+			"uart-2": "TX",
+			"spi": "HSPICS"
+		}
+	},
+	"connector2pin": {
+		"side": "right",
+		"fn": {
+			"gpio": "GPIO1",
+			"uart-1": "TX"
+		}
+	},
+	"connector3pin": {
+		"side": "right",
+		"fn": {
+			"gpio": "GPIO0",
+			"system": "FLASH"
+		}
+	},
+	"connector4pin": {
+		"side": "right",
+		"fn": {
+			"gpio": "GPIO4"
+		}
+	},
+	"connector5pin": {
+		"side": "right",
+		"fn": {
+			"gpio": "GPIO5"
+		}
+	},
+	"connector6pin": {
+		"side": "right",
+		"fn": {
+			"gpio": "GPIO3",
+			"uart": "RX"
+		}
+	},
+	"connector7pin": {
+		"side": "right",
+		"fn": {
+			"gpio": "GPIO1",
+			"uart": "TX",
+			"x-spics": "SPICS2"
+		}
+	},
+	"connector8pin": {
+		"side": "left",
+		"fn": {
+			"power": "VCC"
+		}
+	},
+	"connector9pin": {
+		"side": "left",
+		"fn": {
+			"gpio": "GPIO13",
+			"spi": "HSPID",
+			"uart": "CTS",
+			"uart-2": "RX"
+		}
+	},
+	"connector10pin": {
+		"side": "left",
+		"fn": {
+			"gpio": "GPIO12",
+			"spi": "HSPIQ"
+		}
+	},
+	"connector11pin": {
+		"side": "left",
+		"fn": {
+			"gpio": "GPIO14",
+			"spi": "HSPICLK"
+		}
+	},
+	"connector12pin": {
+		"side": "left",
+		"fn": {
+			"gpio": "GPIO16",
+			"system": "WAKE"
+		}
+	},
+	"connector13pin": {
+		"side": "left",
+		"fn": {
+			"system": "CH_PD"
+		}
+	},
+	"connector14pin": {
+		"side": "left",
+		"fn": {
+			"system": "TOUT",
+			"adc": "ADC0"
+		}
+	},
+	"connector15pin": {
+		"side": "left",
+		"fn": {
+			"system": "RESET"
+		}
+	}
+
+}
