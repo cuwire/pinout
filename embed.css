@@ -3,6 +3,11 @@ g.cuwire text {
 	font-family: sans-serif;
 }
 
+g.cuwire .flag text {
+	fill: black;
+}
+
+
 g.cuwire .alt text {
 	fill: silver;
 }

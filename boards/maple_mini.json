@@ -2,7 +2,8 @@
 	"cuwire": {
 		"meta": {
 			"reference": ["connector7pin", "connector6pin"],
-			"labelOffsetMulX": 1
+			"labelOffsetMulX": 1,
+			"url": "http://leaflabs.com/docs/hardware/maple-mini.html"
 		}
 	},
 	"connector0pin": {

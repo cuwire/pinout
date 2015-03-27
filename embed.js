@@ -4,12 +4,23 @@ if (boardImg) {
 	boardImg.style.margin =  "0 " + parseInt((boardImg.parentElement.parentElement.clientWidth - boardImg.width)/2) + "px";
 }
 
+function cuwirePinout (svgObjSelector, scriptSelector) {
+	this.baseUrl = '';
+	this.dataFile;
+	this.embedCSSText = '';
+
+	// svg objects must be embedded using <object> tag
+	var svgObj = document.querySelector (svgObjSelector);
+
+	var svgDoc = svgObj.getSVGDocument();
+}
+
 var baseUrl = '';
 var dataFile = 'pro.json';
 var embedCSSText = '';
 
 function showSaveable () {
-	var boardImg = document.querySelector ('object');
+	var boardImg = document.querySelector ('#cuwire-pinout-image');
 
 	var svgDoc = boardImg.getSVGDocument();
 
@@ -35,7 +46,7 @@ function boardChanged () {
 
 	window.location.hash = '#' + select.value;
 
-	var boardImg = document.getElementById ('boardImage');
+	var boardImg = document.querySelector ('#cuwire-pinout-image');
 	boardImg.style.visibility = null;
 	boardImg.setAttribute ('data', baseUrl + select.value + '.svg');
 	boardImg.style.visibility = "visible";
@@ -229,7 +240,7 @@ function labelForPin (svgDoc, containerGroup, side, labelMeta) {
 		});
 
 		g.insertBefore (path, rect);
-	} else {
+	} else if (!labelMeta.flag) {
 		var line = createSVGNode (svgDoc, "line", {
 			x1: lineRect.x1,
 			x2: lineRect.x2,
@@ -254,7 +265,8 @@ function labelForPin (svgDoc, containerGroup, side, labelMeta) {
 
 	// stroke="black" stroke-width="20" stroke-linecap="round"/>
 
-	g.insertBefore (rect, text);
+	if (!labelMeta.flag)
+		g.insertBefore (rect, text);
 	// connectorNode.parentElement.insertBefore (rect, c25.nextSibling);
 
 	// c25.parentElement.insertBefore (line, c25.nextSibling);
@@ -304,77 +316,7 @@ function showLabels (exclude) {
 		if (req.status == 200) {
 			brdData = JSON.parse (req.responseText);
 
-			var meta = brdData.cuwire.meta;
-
-			// TODO: get sibling nodes
-			var refPin0 = sss.querySelector ('[id^='+meta.reference[0]+']');
-
-			var refPin1 = sss.querySelector ('[id^='+meta.reference[1]+']');
-
-			// console.log (meta.reference[0], refPin0, meta.reference[1], refPin1);
-
-			var refPin0CP = nodeCentralPoint (refPin0);
-			var refPin1CP = nodeCentralPoint (refPin1);
-
-			var deltaX = refPin0CP.x - refPin1CP.x;
-			var deltaY = refPin0CP.y - refPin1CP.y;
-
-			pitch = Math.abs (deltaY);
-			if (Math.abs (deltaX) > Math.abs (deltaY)) {
-				rotated = (deltaX === Math.abs (deltaX) ? 180 : 0) - 90;
-				pitch = Math.abs (deltaX);
-			} else {
-				rotated = deltaY === Math.abs (deltaY) ? 180 : 0;
-			}
-
-			fontSize = pitch * .75;
-
-			Object.keys (brdData).forEach (function (connector) {
-				if (connector === 'cuwire') {
-					return;
-				}
-				var side = brdData[connector].side;
-
-				var fn = brdData[connector].fn;
-				var fnList = [];
-
-				Object.keys (fn).forEach (function (fnName) {
-
-					if (fnName.match(/^x\-/)) {
-						return;
-					}
-
-					var pinData = {"class": fnName, title: fn[fnName]}
-					var complex = fnName.match (/^(alt-)?([^\-]+)-([^\-]+)?$/);
-					if (complex) {
-						if (complex[2] === 'alt') {
-							complex.shift();
-						}
-						pinData["class"] = complex[2];
-						if (complex[1]) {
-							pinData["class"] += " alt";
-						}
-						if (complex[3]) {
-							pinData.title = pinData.title + complex[3];
-						}
-					}
-
-					if (exclude[pinData["class"]]) {
-						return;
-					}
-
-					fnList.push (pinData);
-				});
-
-				if (brdData[connector].flags) {
-					if (brdData[connector].flags.touch) {
-						fnList.push ({"class": "touch", title: "☜"});
-					}
-				}
-
-//				console.log (fn, fnList);
-				drawLabels (sss, connector, side, fnList, brdData[connector].flags);
-			});
+			boardDataLoaded (exclude, sss);
 		}
 
 	});
@@ -383,30 +325,105 @@ function showLabels (exclude) {
 
 }
 
+function boardDataLoaded (exclude, svgDoc) {
+	var meta = brdData.cuwire.meta;
 
+	// TODO: get sibling nodes
+	var refPin0 = svgDoc.querySelector ('[id^='+meta.reference[0]+']');
 
+	var refPin1 = svgDoc.querySelector ('[id^='+meta.reference[1]+']');
 
-document.addEventListener("DOMContentLoaded", function(event) {
+	// console.log (meta.reference[0], refPin0, meta.reference[1], refPin1);
 
-	var embedScript = document.getElementById ('cuwire-pinout');
-	var embedCSS = embedScript.getAttribute ('src', 2).replace (/js$/, 'css');
+	var refPin0CP = nodeCentralPoint (refPin0);
+	var refPin1CP = nodeCentralPoint (refPin1);
+
+	var deltaX = refPin0CP.x - refPin1CP.x;
+	var deltaY = refPin0CP.y - refPin1CP.y;
+
+	pitch = Math.abs (deltaY);
+	if (Math.abs (deltaX) > Math.abs (deltaY)) {
+		rotated = (deltaX === Math.abs (deltaX) ? 180 : 0) - 90;
+		pitch = Math.abs (deltaX);
+	} else {
+		rotated = deltaY === Math.abs (deltaY) ? 180 : 0;
+	}
+
+	fontSize = pitch * .75;
+
+	Object.keys (brdData).forEach (function (connector) {
+		if (connector === 'cuwire') {
+			return;
+		}
+		var side = brdData[connector].side;
+
+		var fn = brdData[connector].fn;
+		var fnList = [];
+
+		Object.keys (fn).forEach (function (fnName) {
+
+			if (fnName.match(/^x\-/)) {
+				return;
+			}
+
+			var pinData = {"class": fnName, title: fn[fnName]}
+			var complex = fnName.match (/^(alt-)?([^\-]+)-([^\-]+)?$/);
+			if (complex) {
+				if (complex[2] === 'alt') {
+					complex.shift();
+				}
+				pinData["class"] = complex[2];
+				if (complex[1]) {
+					pinData["class"] += " alt";
+				}
+				if (complex[3]) {
+					pinData.title = pinData.title + complex[3];
+				}
+			}
+
+			if (exclude[pinData["class"]]) {
+				return;
+			}
+
+			fnList.push (pinData);
+		});
+
+		if (brdData[connector].flags) {
+			if (brdData[connector].flags["5v"]) {
+				fnList.push ({"class": "5v flag", title: "➄", flag: true});
+			}
+			if (brdData[connector].flags.touch) {
+				fnList.push ({"class": "touch flag", title: "☟", flag: true});
+			}
+		}
+
+		//				console.log (fn, fnList);
+		drawLabels (svgDoc, connector, side, fnList, brdData[connector].flags);
+	});
+}
+
+function initialize (svgObjSelector, scriptSelector) {
+	var embedScript = document.querySelector (scriptSelector);
+	var embedCSS = embedScript.getAttribute ('src', 2).replace (/js($|\?.*|\#.*)/, 'css');
 
 	var req = new XMLHttpRequest ();
 	req.open('GET', embedCSS, true);
 	req.addEventListener ('load', function() {
 		if (req.status == 200) {
 			embedCSSText = req.responseText;
-			document.getElementById ('open-for-save').disabled = false;
+			var openForSaveBtn = document.getElementById ('open-for-save');
+			if (openForSaveBtn)
+				openForSaveBtn.disabled = false;
 		}
 	});
 	req.send (null);
 
-	var boardImg = document.getElementById ('boardImage');
+	var boardImg = document.querySelector (svgObjSelector);
 
 	var url = boardImg.data;
 	baseUrl = url.replace (/[^\/]+\.svg$/, '')
 
-	console.log (baseUrl, embedCSS);
+//	console.log (baseUrl, embedCSS);
 
 	if (window.location.search) {
 		window.location.hash = "#" + window.location.search.replace (/^\?/, '');
@@ -446,5 +463,10 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
 		showLabels();
 	});
+}
+
+document.addEventListener("DOMContentLoaded", function(event) {
+
+	initialize ('#cuwire-pinout-image', '#cuwire-pinout-script');
 
 });
