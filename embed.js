@@ -27,7 +27,8 @@ function cuwirePinout (svgObjSelector, scriptSelector, options) {
 	var req = new XMLHttpRequest ();
 	req.open('GET', embedCSS, true);
 	req.addEventListener ('load', function() {
-		if (req.status == 200) {
+//		console.log (req.status);
+		if ((req.status === 0 && req.responseText) || req.status == 200) {
 			this.embedCSSText = req.responseText;
 
 			// TODO: add event emit
@@ -40,7 +41,11 @@ function cuwirePinout (svgObjSelector, scriptSelector, options) {
 				}.bind (this)
 			}
 		}
-	}.bind (this));
+	}.bind (this), false);
+//	req.addEventListener ("loadend", function (e) {
+//		console.log ('loadend', e);
+//		console.log (req.status);
+//	}, false);
 	req.send (null);
 
 	this.pinoutElement = document.querySelector (svgObjSelector);
@@ -141,7 +146,7 @@ cuwirePinout.prototype.showLabels = function (exclude) {
 	var req = new XMLHttpRequest ();
 	req.open('GET', this.baseUrl + this.boardId + '.json', true);
 	req.addEventListener ('load', function() {
-		if (req.status == 200) {
+		if ((req.status === 0 && req.responseText) || req.status == 200) {
 			this.boardData = JSON.parse (req.responseText);
 
 			this.boardDataLoaded (exclude);
