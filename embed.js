@@ -129,7 +129,7 @@ cuwirePinout.prototype.showLabels = function (exclude) {
 
 	exclude = exclude || {};
 
-//	this.pinoutSVGDoc = this.pinoutElement
+	//	this.pinoutSVGDoc = this.pinoutElement
 	[].slice.apply (this.pinoutSVGDoc.querySelectorAll ('g.cuwire')).forEach (function (node) {
 		node.parentNode.removeChild (node);
 	});
