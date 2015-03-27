@@ -402,7 +402,7 @@ function boardDataLoaded (exclude, svgDoc) {
 	});
 }
 
-function initialize (svgObjSelector, scriptSelector) {
+function cuwirePinout (svgObjSelector, scriptSelector) {
 	var embedScript = document.querySelector (scriptSelector);
 	var embedCSS = embedScript.getAttribute ('src', 2).replace (/js($|\?.*|\#.*)/, 'css');
 
@@ -410,39 +410,22 @@ function initialize (svgObjSelector, scriptSelector) {
 	req.open('GET', embedCSS, true);
 	req.addEventListener ('load', function() {
 		if (req.status == 200) {
-			embedCSSText = req.responseText;
+			this.embedCSSText = req.responseText;
+
+			// TODO: add event emit
 			var openForSaveBtn = document.getElementById ('open-for-save');
 			if (openForSaveBtn)
 				openForSaveBtn.disabled = false;
 		}
-	});
+	}.bind (this));
 	req.send (null);
 
 	var boardImg = document.querySelector (svgObjSelector);
 
 	var url = boardImg.data;
-	baseUrl = url.replace (/[^\/]+\.svg$/, '')
+	this.baseUrl = url.replace (/[^\/]+\.svg$/, '')
 
 //	console.log (baseUrl, embedCSS);
-
-	if (window.location.search) {
-		window.location.hash = "#" + window.location.search.replace (/^\?/, '');
-		window.location.search = '';
-	}
-
-	if (window.location.hash) {
-
-		var boardId = window.location.hash.replace ('#', '');
-
-		boardImg.style.visibility = null;
-		boardImg.setAttribute ('data', baseUrl + boardId + '.svg');
-		boardImg.style.visibility = "visible";
-
-		dataFile = boardId + '.json';
-
-		var boardSelectForm = document.getElementById ('boardId');
-		boardSelectForm.value = boardId;
-	}
 
 	boardImg.addEventListener ('load', function () {
 
@@ -466,6 +449,26 @@ function initialize (svgObjSelector, scriptSelector) {
 }
 
 document.addEventListener("DOMContentLoaded", function(event) {
+
+	if (window.location.search) {
+		window.location.hash = "#" + window.location.search.replace (/^\?/, '');
+		window.location.search = '';
+	}
+
+	if (window.location.hash) {
+
+		var boardId = window.location.hash.replace ('#', '');
+
+		boardImg.style.visibility = null;
+		boardImg.setAttribute ('data', baseUrl + boardId + '.svg');
+		boardImg.style.visibility = "visible";
+
+		dataFile = boardId + '.json';
+
+		var boardSelectForm = document.getElementById ('boardId');
+		boardSelectForm.value = boardId;
+	}
+
 
 	initialize ('#cuwire-pinout-image', '#cuwire-pinout-script');
 
