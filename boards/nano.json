@@ -22,7 +22,7 @@
 		"fn": {
 			"pin": 29,
 			"system": "RESET",
-			"pcint": "PCINT14"
+			"x-pcint": "PCINT14"
 		}
 	},
 	"connector33": {
@@ -30,7 +30,7 @@
 		"fn": {
 			"pin": 29,
 			"system": "RESET",
-			"pcint": "PCINT14"
+			"x-pcint": "PCINT14"
 		}
 	},
 	"connector34": {
@@ -50,7 +50,7 @@
 		"fn": {
 			"pin": 22,
 			"analog": "A7",
-			"adc": "ADC7"
+			"x-adc": "ADC7"
 		}
 	},
 	"connector36": {
@@ -58,7 +58,7 @@
 		"fn": {
 			"pin": 19,
 			"analog": "A6",
-			"adc": "ADC6"
+			"x-adc": "ADC6"
 		}
 	},
 	"connector37": {
@@ -67,8 +67,8 @@
 			"pin": 28,
 			"digital": 19,
 			"analog": "A5",
-			"pcint": "PCINT13",
-			"adc": "ADC5",
+			"x-pcint": "PCINT13",
+			"x-adc": "ADC5",
 			"i2c": "SDA"
 		}
 	},
@@ -78,8 +78,8 @@
 			"pin": 27,
 			"digital": 18,
 			"analog": "A4",
-			"pcint": "PCINT12",
-			"adc": "ADC4",
+			"x-pcint": "PCINT12",
+			"x-adc": "ADC4",
 			"i2c": "SCL"
 		}
 	},
@@ -89,8 +89,8 @@
 			"pin": 26,
 			"digital": "17",
 			"analog": "A3",
-			"pcint": "PCINT11",
-			"adc": "ADC3"
+			"x-pcint": "PCINT11",
+			"x-adc": "ADC3"
 		}
 	},
 	"connector40": {
@@ -99,8 +99,8 @@
 			"pin": 25,
 			"digital": "16",
 			"analog": "A2",
-			"pcint": "PCINT10",
-			"adc": "ADC2"
+			"x-pcint": "PCINT10",
+			"x-adc": "ADC2"
 		}
 	},
 	"connector41": {
@@ -109,8 +109,8 @@
 			"pin": 24,
 			"digital": "15",
 			"analog": "A1",
-			"pcint": "PCINT9",
-			"adc": "ADC1"
+			"x-pcint": "PCINT9",
+			"x-adc": "ADC1"
 		}
 	},
 	"connector42": {
@@ -119,8 +119,8 @@
 			"pin": 23,
 			"digital": "14",
 			"analog": "A0",
-			"pcint": "PCINT8",
-			"adc": "ADC0"
+			"x-pcint": "PCINT8",
+			"x-adc": "ADC0"
 		}
 	},
 	"connector43": {
@@ -136,7 +136,7 @@
 			"pin": 17,
 			"digital": "13",
 			"spi": "SCK",
-			"pcint": "PCINT5",
+			"x-pcint": "PCINT5",
 			"led": "LED"
 		}
 	},
@@ -146,7 +146,7 @@
 			"pin": 16,
 			"digital": "12",
 			"spi": "MISO",
-			"pcint": "PCINT4"
+			"x-pcint": "PCINT4"
 		}
 	},
 	"connector29": {
@@ -155,7 +155,7 @@
 			"pin": 15,
 			"digital": "11",
 			"spi": "MOSI",
-			"pcint": "PCINT3"
+			"x-pcint": "PCINT3"
 		},
 		"fnlong": {
 			"timerpin": "OC2A"
@@ -170,7 +170,7 @@
 			"pin": 14,
 			"digital": "10",
 			"spi": "SS",
-			"pcint": "PCINT2"
+			"x-pcint": "PCINT2"
 		},
 		"fnlong": {
 			"timerpin": "OC1B"
@@ -184,7 +184,7 @@
 		"fn": {
 			"pin": 13,
 			"digital": "9",
-			"pcint": "PCINT1"
+			"x-pcint": "PCINT1"
 		},
 		"fnlong": {
 			"timerpin": "OC1A"
@@ -198,7 +198,7 @@
 		"fn": {
 			"pin": 12,
 			"digital": "8",
-			"pcint": "PCINT0"
+			"x-pcint": "PCINT0"
 		}
 	},
 	"connector25": {
@@ -206,7 +206,7 @@
 		"fn": {
 			"pin": 11,
 			"digital": "7",
-			"pcint": "PCINT23"
+			"x-pcint": "PCINT23"
 		},
 		"fnlong": {
 			"comparator": "AIN1"
@@ -217,7 +217,7 @@
 		"fn": {
 			"pin": 10,
 			"digital": "6",
-			"pcint": "PCINT22"
+			"x-pcint": "PCINT22"
 		},
 		"fnlong": {
 			"comparator": "AIN0",
@@ -232,7 +232,7 @@
 		"fn": {
 			"pin": 9,
 			"digital": "5",
-			"pcint": "PCINT21"
+			"x-pcint": "PCINT21"
 		},
 		"fnlong": {
 			"timercounter": "T1"
@@ -246,7 +246,7 @@
 		"fn": {
 			"pin": 2,
 			"digital": "4",
-			"pcint": "PCINT20"
+			"x-pcint": "PCINT20"
 		},
 		"fnlong": {
 			"timercounter": "T0",
@@ -260,7 +260,7 @@
 			"pin": 1,
 			"digital": "3",
 			"int": "INT1",
-			"pcint": "PCINT19"
+			"x-pcint": "PCINT19"
 		},
 		"fnlong": {
 			"timerpin": "OC2B"
@@ -275,7 +275,7 @@
 			"pin": 32,
 			"digital": "2",
 			"int": "INT0",
-			"pcint": "PCINT18"
+			"x-pcint": "PCINT18"
 		}
 	},
 	"connector19": {
@@ -289,7 +289,7 @@
 		"fn": {
 			"pin": 29,
 			"system": "RESET",
-			"pcint": "PCINT14"
+			"x-pcint": "PCINT14"
 		}
 	},
 	"connector17": {
@@ -298,7 +298,7 @@
 			"pin": 30,
 			"digital": "0",
 			"uart": "RX",
-			"pcint": "PCINT16"
+			"x-pcint": "PCINT16"
 		}
 	},
 	"connector16": {
@@ -307,7 +307,7 @@
 			"pin": 31,
 			"digital": "1",
 			"uart": "TX",
-			"pcint": "PCINT17"
+			"x-pcint": "PCINT17"
 		}
 	}
 
