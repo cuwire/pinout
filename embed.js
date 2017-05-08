@@ -4,6 +4,29 @@ if (boardImg) {
 	boardImg.style.margin =  "0 " + parseInt((boardImg.parentElement.parentElement.clientWidth - boardImg.width)/2) + "px";
 }
 
+document.addEventListener("DOMContentLoaded", function(event) {
+
+	if (window.location.search) {
+		window.location.hash = "#" + window.location.search.replace (/^\?/, '');
+		window.location.search = '';
+	}
+
+	var boardId;
+
+	if (window.location.hash) {
+
+		var boardId = window.location.hash.replace ('#', '');
+
+		var boardSelectForm = document.getElementById ('boardId');
+		boardSelectForm.value = boardId;
+	}
+
+	window.pinout = new cuwirePinout ('#cuwire-pinout-image', '#cuwire-pinout-script', {
+		boardId: boardId
+	});
+
+});
+
 function boardChanged () {
 	var select = document.getElementById ('boardId');
 	console.log (select.selectedIndex, select.value);
@@ -460,25 +483,4 @@ cuwirePinout.prototype.labelForPin = function (containerGroup, side, labelMeta) 
 }
 
 
-document.addEventListener("DOMContentLoaded", function(event) {
 
-	if (window.location.search) {
-		window.location.hash = "#" + window.location.search.replace (/^\?/, '');
-		window.location.search = '';
-	}
-
-	var boardId;
-
-	if (window.location.hash) {
-
-		var boardId = window.location.hash.replace ('#', '');
-
-		var boardSelectForm = document.getElementById ('boardId');
-		boardSelectForm.value = boardId;
-	}
-
-	window.pinout = new cuwirePinout ('#cuwire-pinout-image', '#cuwire-pinout-script', {
-		boardId: boardId
-	});
-
-});
