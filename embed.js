@@ -45,19 +45,25 @@ function cuwirePinout (svgObjSelector, scriptSelector, options) {
 
 	this.pinoutElement = document.querySelector (svgObjSelector);
 
-	if (options && options.boardId) {
-		this.changeBoard (options.boardId);
-	}
 
 	var url = this.pinoutElement.data;
 	var urlSplit = url.split (/([^\/]+)\.svg$/);
 	this.baseUrl = urlSplit[0];
 	this.boardId = urlSplit[1];
 
-	//	console.log (baseUrl, embedCSS);
+	if (options && options.boardId) {
+		this.changeBoard (options.boardId);
+	}
 
-	if (this.pinoutElement.getSVGDocument()) {
-		this.initSVGDoc ();
+	// console.log (this.baseUrl); // , embedCSS);
+
+	// element can be loaded or still loading. if element is loading, getSVGDocument will throw exception
+	try {
+		if (this.pinoutElement.getSVGDocument()) {
+			this.initSVGDoc ();
+		}
+	} catch (e) {
+	
 	}
 
 	this.pinoutElement.addEventListener ('load', this.initSVGDoc.bind (this));
