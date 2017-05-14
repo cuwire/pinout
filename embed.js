@@ -27,7 +27,7 @@ function CuwirePinout (svgObjSelector, scriptSelector, options) {
 	}.bind (this));
 	req.send (null);
 
-	this.pinoutElement = document.querySelector (svgObjSelector);
+	this.pinoutElement = svgObjSelector instanceof Node ? svgObjSelector : document.querySelector (svgObjSelector);
 
 
 	var url = this.pinoutElement.data;
