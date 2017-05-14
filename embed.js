@@ -187,18 +187,26 @@ CuwirePinout.prototype.boardDataLoaded = function (exclude) {
 				return;
 			}
 
-			var pinData = {"class": fnName, title: fn[fnName]}
+			var pinData = {
+				"class": fnName,
+				title: fn[fnName],
+				scopeNum: null,
+				fn: fnName,
+			};
+
 			var complex = fnName.match (/^(alt-)?([^\-]+)-([^\-]+)?$/);
+			// usually this is [alt-]uart-1
 			if (complex) {
 				if (complex[2] === 'alt') {
 					complex.shift();
 				}
 				pinData["class"] = complex[2];
+				pinData.fn = complex[2];
 				if (complex[1]) {
 					pinData["class"] += " alt";
 				}
 				if (complex[3]) {
-					pinData.title = pinData.title + complex[3];
+					pinData.scopeNum = complex[3];
 				}
 			}
 
@@ -350,9 +358,10 @@ CuwirePinout.prototype.labelForPin = function (containerGroup, side, labelMeta) 
 
 	containerGroup.appendChild(g);
 
-	var textOffset = (side === 'right' ? 1 : -1) * this.fontSize * (labelMeta.begin ? 2 : 1);
+	var labelTextOffset = (side === 'right' ? 1 : -1) * this.fontSize * (labelMeta.begin ? 2 : 1);
+
 	var text = this.createSVGNode ("text", {
-		x: pinX + textOffset,
+		x: pinX + labelTextOffset,
 		y: pinY,
 		"font-size": this.fontSize,
 		// fill: "white",
@@ -363,12 +372,45 @@ CuwirePinout.prototype.labelForPin = function (containerGroup, side, labelMeta) 
 	text.textContent = labelTitle;
 
 	g.appendChild (text);
-	// connectorNode.parentElement.insertBefore (text, connectorNode.nextSibling);
 
 	var bbox = text.getBBox();
 	var ctm  = text.getCTM();
 	var sctm = text.getScreenCTM();
 
+	if (labelMeta.scopeNum) {
+		var scopeIdText = this.createSVGNode ("text", {
+			x: pinX + labelTextOffset + this.fontSize/10 + (side === 'right' ? 0 : -1) * bbox.width,
+			y: pinY,
+			"font-size": this.fontSize / 2,
+			// fill: "white",
+			"dominant-baseline": "hanging",
+			"text-anchor": 'start', //side === 'right' ? "start" : 'end'
+		});
+
+		scopeIdText.textContent = labelMeta.scopeNum;
+
+		g.appendChild (scopeIdText);
+
+		var x = pinX + labelTextOffset - this.fontSize/5 + (side === 'right' ? 0 : -1) * bbox.width,
+			y = pinY;
+		var scopeNameText = this.createSVGNode ("text", {
+			x: x,
+			y: y,
+			"font-size": this.fontSize / 2,
+			"font-weight": "bold",
+			// fill: "white",
+			"dominant-baseline": "central",
+			"text-anchor": 'middle', //side === 'right' ? "start" : 'end'
+			transform: "rotate(-90, " + x + ", " + y + ")",
+		});
+
+		scopeNameText.textContent = labelMeta.fn;
+
+		g.appendChild (scopeNameText);
+
+	}
+
+	// connectorNode.parentElement.insertBefore (text, connectorNode.nextSibling);
 
 	// text.setAttribute ('y', pinY + bbox.height / 2);
 
@@ -380,14 +422,15 @@ CuwirePinout.prototype.labelForPin = function (containerGroup, side, labelMeta) 
 		x2: pinX,
 		y2: pinY,
 	};
+
 	// TODO: remove stroke width from line x
 	if (labelMeta.begin && labelMeta.pwm) {
 		var path = this.createSVGNode ("path", {
 			d: [
 				"M"+[lineRect.x1, lineRect.y1].join (','),
 				"l"+[(lineRect.x2-lineRect.x1)/4, 0].join (','),
-				"C"+[lineRect.x1 + (lineRect.x2-lineRect.x1)/2, lineRect.y2 - Math.abs (textOffset/2)].join (','),
-				[lineRect.x1 + (lineRect.x2-lineRect.x1)/2, lineRect.y2 + Math.abs (textOffset/2)].join (','),
+				"C"+[lineRect.x1 + (lineRect.x2-lineRect.x1)/2, lineRect.y2 - Math.abs (labelTextOffset/2)].join (','),
+				[lineRect.x1 + (lineRect.x2-lineRect.x1)/2, lineRect.y2 + Math.abs (labelTextOffset/2)].join (','),
 				[lineRect.x2-(lineRect.x2-lineRect.x1)/4, lineRect.y2].join (','),
 				"l"+[(lineRect.x2-lineRect.x1)/4, 0].join (','),
 			].join (' '),
@@ -431,6 +474,11 @@ CuwirePinout.prototype.labelForPin = function (containerGroup, side, labelMeta) 
 	// g.appendChild (text);
 
 	// c25.parentElement.insertBefore (path, c25.nextSibling);
+
+	if (labelMeta.scopeNum) {
+		text.setAttribute ("x", parseFloat(text.getAttribute("x")) + this.fontSize/2.5);
+		var textOffset = this.fontSize * 1;
+	}
 
 	return {
 		x: bbox.x + (side === 'right' ? bbox.width + this.fontSize / 2 : - this.fontSize / 2) ,
