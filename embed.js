@@ -255,7 +255,7 @@ CuwirePinout.prototype.drawLabels = function (pinSelector, side, labels, flags) 
 	var pinY = connectorCenter.y;
 
 	var g = this.createSVGNode ("g", {
-		class: 'cuwire',
+		class: 'cuwire-pin',
 		transform: "rotate("+this.rotated+" "+pinX+" "+pinY+")",
 		// x: pinX+10,
 		// y: pinY,
@@ -348,7 +348,7 @@ CuwirePinout.prototype.labelForPin = function (containerGroup, side, labelMeta) 
 	var pinY = labelMeta.y;
 
 	var g = this.createSVGNode ("g", {
-		class: 'cuwire '+labelMeta.class,
+		class: 'cuwire-pin '+labelMeta.class,
 		//		transform: "rotate("+(rotated ? -90 : 0)+" "+pinX+" "+pinY+")",
 		// x: pinX+10,
 		// y: pinY,
