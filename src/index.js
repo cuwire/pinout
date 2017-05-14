@@ -7,7 +7,7 @@ function boardChanged () {
 	window.location.hash = '#' + select.value;
 
 	if (typeof window.pinout !== 'undefined') {
-		pinout.changeBoard (select[select.selectedIndex].dataset.url || select.value);
+		if (pinout) pinout.changeBoard (select[select.selectedIndex].dataset.url || select.value);
 	}
 }
 
@@ -34,18 +34,19 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
 	if (singlePinoutNode) {
 
-		var boardSelectForm = document.getElementById ('boardId');
+		var select = document.getElementById ('boardId');
 
 		if (window.location.hash) {
 			var boardId = window.location.hash.replace ('#', '');
-			boardSelectForm.value = boardId;
+			select.value = boardId;
 		}
 
-		boardSelectForm.addEventListener ("change", boardChanged);
-
 		window.pinout = new CuwirePinout ('#cuwire-pinout-image', '#cuwire-pinout-script', {
-			boardId: boardId
+			boardId: select[select.selectedIndex].dataset.url || select.value
 		});
+
+		select.addEventListener ("change", boardChanged);
+
 	} else if (multiplePinoutNodes.length) {
 		multiplePinoutNodes.forEach (function (node) {
 			new CuwirePinout (node, '#cuwire-pinout-script', {});

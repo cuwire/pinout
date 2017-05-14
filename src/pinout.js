@@ -1,5 +1,12 @@
 import {DOMParser, XMLSerializer} from 'xmldom';
 
+import {
+	nodeCentralPoint,
+	svgToBlob
+} from './svg-tools';
+
+import FritzingFzpz from './fritzing/fzpz';
+
 export default function CuwirePinout (svgObjSelector, scriptSelector, options) {
 	var embedScript = document.querySelector (scriptSelector);
 	var embedCSS = embedScript.getAttribute ('src', 2).replace (/js($|\?.*|\#.*)/, 'css');
@@ -54,126 +61,6 @@ function githubCORSUrl (githubUrl) {
 		.replace (/\/blob/, "")
 }
 
-// https://codepen.io/tigt/post/optimizing-svgs-in-data-uris
-function encodeOptimizedSVGDataUri (svgString) {
-	var uriPayload = encodeURIComponent (// encode URL-unsafe characters
-		svgString.replace(/[\r\n]+\s*/g, '')// remove newlines
-	)
-	// .encodeUriComponent()
-	.replace(/%20/g, ' ') // put spaces back in
-	.replace(/%3D/g, '=') // ditto equals signs
-	.replace(/%3A/g, ':') // ditto colons
-	.replace(/%3B/g, ';') // ditto …
-	.replace(/%3C/g, '<') // ditto …
-	.replace(/%3E/g, '>') // ditto …
-	.replace(/%23/g, '#') // ditto …
-	.replace(/%2C/g, ',') // ditto …
-	.replace(/%2F/g, '/') // ditto slashes
-	.replace(/%22/g, "'"); // replace quotes with apostrophes (may break certain SVGs)
-
-	return 'data:image/svg+xml,' + uriPayload;
-}
-
-function downloadAndUnzip (url, cb) {
-	JSZipUtils.getBinaryContent (url, function (err, data) {
-		if(err) {
-			throw err; // or handle err
-		}
-
-		JSZip.loadAsync (data).then (function (archiveData) {
-			//
-			// window.archive = archiveData;
-			// var files =
-
-			console.info (Object.keys (archiveData.files));
-			var filenames = Object.keys (archiveData.files);
-
-			// non optimal, but clean
-			var fzpName = filenames.filter (file => file.match (/fzp$/))[0];
-			var breadboardName = filenames.filter (file => file.match (/(?:^svg\.breadboard\.|breadboard\.svg$)/))[0];
-			// breadboardName = breadboardName.replace (/^(?:svg\.breadboard\.)?/, '');
-
-			archiveData.files [fzpName].async ("text").then (fzpContents => {
-				try {
-					var fzpDoc = new DOMParser ().parseFromString (fzpContents, "application/xml");
-
-				} catch (e) {
-					return console.error (e);
-				}
-
-				console.log (fzpDoc.documentElement);
-
-				var fzpData = {};
-
-				var fzpRoot = fzpDoc.documentElement;
-				var views = fzpRoot.getElementsByTagName ('views')[0];
-				[].slice.apply (views.childNodes).forEach ((node) => {
-					// [icon|breadboard|pcb|schematic]View/layers[image=.svg]/layer[layerId=]
-					// console.log (node);
-
-					if (!node.localName || !node.localName.match (/^(?:icon|breadboard|pcb|schematic)View$/))
-						return;
-
-					var viewType    = node.localName.replace ('View', '');
-					var layersNodes = node.getElementsByTagName ('layers');
-
-					if (!layersNodes || !layersNodes.length) {
-						return;
-					}
-
-					var layerView = layersNodes[0];
-
-					var layerNodes = [].slice.apply (node.getElementsByTagName ('layer') || []);
-
-					var nodeData = {
-						// usually there is only one child node
-						svgName: layerView.getAttribute ('image'),
-						layers: layerNodes.map (layerNode => layerNode.getAttribute ('layerId'))
-					};
-
-					fzpData[viewType] = nodeData;
-
-					// find the breadboard view
-					// WTF: fritzing file name in the zip archive and fzp file doesn't match!
-					if (viewType === 'breadboard') {
-						// !breadboardName &&
-						var metaBBName = layerView.getAttribute ('image').replace (/^(?:breadboard\/)?/, 'svg.breadboard.');
-						if (breadboardName && metaBBName !== breadboardName) {
-							// TODO: do something
-							console.error (`breadboard file names in fzp (${breadboardName}) and fzpz file (${metaBBName}) doesn't match`);
-						}
-					}
-				});
-
-				console.log (fzpData);
-
-				// TODO: show notification when breadboardName is not defined
-				// decompress it
-
-				archiveData.files[breadboardName].async ("text").then (breadboardContents => {
-
-					//console.log (breadboardContents);
-
-					// load data url into the object
-					try {
-						// var dataUrl = encodeOptimizedSVGDataUri (breadboardContents);
-						var dataUrl = svgBlob (breadboardContents);
-					} catch (e) {
-						console.log (e);
-					}
-
-					// console.log (dataUrl);
-
-					cb && cb (dataUrl);
-				})
-
-
-
-			})
-		});
-	});
-}
-
 CuwirePinout.prototype.changeBoard = function (boardId) {
 	this.boardId = boardId;
 
@@ -181,26 +68,17 @@ CuwirePinout.prototype.changeBoard = function (boardId) {
 	this.pinoutElement.style.visibility = null;
 	if (boardId.match (/^https?\:\/\/.*fzpz(?:$|\?)/)) {
 		console.log ('fzpz');
-		downloadAndUnzip (githubCORSUrl (boardId), breadboardUrl => {
-			this.pinoutElement.setAttribute ('data', breadboardUrl);
+		FritzingFzpz.loadFromUrl (githubCORSUrl (boardId)).then (fzpz => {
+			var breadboardBlobUrl = svgToBlob (fzpz.files.breadboard.contents);
+			this.pinoutElement.setAttribute ('data', breadboardBlobUrl);
 			this.pinoutElement.style.visibility = "visible";
 		});
-		// githubCORSUrl (boardId)
+
+
 	} else {
 		this.pinoutElement.setAttribute ('data', this.baseUrl + this.boardId + '.svg');
 		this.pinoutElement.style.visibility = "visible";
 	}
-}
-
-function svgToBlob (svg) {
-	var svgString = svg instanceof SVGDocument
-		? new XMLSerializer().serializeToString (svg)
-		: svg;
-
-	var svgBlob = new Blob ([svgString], {'type': "image/svg+xml"});
-
-	return URL.createObjectURL (svgBlob);
-
 }
 
 CuwirePinout.prototype.openNewWindow = function () {
@@ -272,12 +150,6 @@ CuwirePinout.prototype.createSVGNode = function (nodeName, attrs) {
 		theNode.setAttributeNS (null, attrName, attrs[attrName]);
 	}
 	return theNode;
-}
-
-function nodeCentralPoint (node) {
-	if (!node) console.trace (node);
-	var bbox = node.getBBox();
-	return {x: bbox.x + bbox.width/2, y: bbox.y + bbox.height/2}
 }
 
 CuwirePinout.prototype.showLabels = function (exclude) {

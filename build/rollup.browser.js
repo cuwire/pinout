@@ -10,7 +10,7 @@ export default {
 	entry: 'src/index.js',
 	format: 'iife',
 	plugins: [
-		buble()
+		// buble()
 		/*
 		alias({
 			jszip: path.join(__dirname, './node_modules/jszip/dist/jszip.min.js')
@@ -21,11 +21,14 @@ export default {
 	],
 	dest: 'build/boards.js',
 	external: [
-		'xmldom'
+		'xmldom',
+		'jszip',
+		'JSZipUtils',
 	],
 	sourceMap: true,
 	globals: {
-		xmldom: 'window'
+		xmldom: 'window',
+		jszip: 'JSZip'
 	},
 	moduleName: 'Pinout'
 }
