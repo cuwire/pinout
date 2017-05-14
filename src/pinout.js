@@ -1,10 +1,6 @@
+import {DOMParser, XMLSerializer} from 'xmldom';
 
-// TODO: remove that
-//var pitch;
-//var fontSize;
-//var rotated = 0;
-
-function CuwirePinout (svgObjSelector, scriptSelector, options) {
+export default function CuwirePinout (svgObjSelector, scriptSelector, options) {
 	var embedScript = document.querySelector (scriptSelector);
 	var embedCSS = embedScript.getAttribute ('src', 2).replace (/js($|\?.*|\#.*)/, 'css');
 
@@ -29,7 +25,6 @@ function CuwirePinout (svgObjSelector, scriptSelector, options) {
 
 	this.pinoutElement = svgObjSelector instanceof Node ? svgObjSelector : document.querySelector (svgObjSelector);
 
-
 	var url = this.pinoutElement.data;
 	var urlSplit = url.split (/([^\/]+)\.svg$/);
 	this.baseUrl = urlSplit[0];
@@ -53,13 +48,159 @@ function CuwirePinout (svgObjSelector, scriptSelector, options) {
 	this.pinoutElement.addEventListener ('load', this.initSVGDoc.bind (this));
 }
 
+function githubCORSUrl (githubUrl) {
+	return githubUrl
+		.replace (/^https\:\/\/github\.com/, "https://cdn.rawgit.com")
+		.replace (/\/blob/, "")
+}
+
+// https://codepen.io/tigt/post/optimizing-svgs-in-data-uris
+function encodeOptimizedSVGDataUri (svgString) {
+	var uriPayload = encodeURIComponent (// encode URL-unsafe characters
+		svgString.replace(/[\r\n]+\s*/g, '')// remove newlines
+	)
+	// .encodeUriComponent()
+	.replace(/%20/g, ' ') // put spaces back in
+	.replace(/%3D/g, '=') // ditto equals signs
+	.replace(/%3A/g, ':') // ditto colons
+	.replace(/%3B/g, ';') // ditto …
+	.replace(/%3C/g, '<') // ditto …
+	.replace(/%3E/g, '>') // ditto …
+	.replace(/%23/g, '#') // ditto …
+	.replace(/%2C/g, ',') // ditto …
+	.replace(/%2F/g, '/') // ditto slashes
+	.replace(/%22/g, "'"); // replace quotes with apostrophes (may break certain SVGs)
+
+	return 'data:image/svg+xml,' + uriPayload;
+}
+
+function downloadAndUnzip (url, cb) {
+	JSZipUtils.getBinaryContent (url, function (err, data) {
+		if(err) {
+			throw err; // or handle err
+		}
+
+		JSZip.loadAsync (data).then (function (archiveData) {
+			//
+			// window.archive = archiveData;
+			// var files =
+
+			console.info (Object.keys (archiveData.files));
+			var filenames = Object.keys (archiveData.files);
+
+			// non optimal, but clean
+			var fzpName = filenames.filter (file => file.match (/fzp$/))[0];
+			var breadboardName = filenames.filter (file => file.match (/(?:^svg\.breadboard\.|breadboard\.svg$)/))[0];
+			// breadboardName = breadboardName.replace (/^(?:svg\.breadboard\.)?/, '');
+
+			archiveData.files [fzpName].async ("text").then (fzpContents => {
+				try {
+					var fzpDoc = new DOMParser ().parseFromString (fzpContents, "application/xml");
+
+				} catch (e) {
+					return console.error (e);
+				}
+
+				console.log (fzpDoc.documentElement);
+
+				var fzpData = {};
+
+				var fzpRoot = fzpDoc.documentElement;
+				var views = fzpRoot.getElementsByTagName ('views')[0];
+				[].slice.apply (views.childNodes).forEach ((node) => {
+					// [icon|breadboard|pcb|schematic]View/layers[image=.svg]/layer[layerId=]
+					// console.log (node);
+
+					if (!node.localName || !node.localName.match (/^(?:icon|breadboard|pcb|schematic)View$/))
+						return;
+
+					var viewType    = node.localName.replace ('View', '');
+					var layersNodes = node.getElementsByTagName ('layers');
+
+					if (!layersNodes || !layersNodes.length) {
+						return;
+					}
+
+					var layerView = layersNodes[0];
+
+					var layerNodes = [].slice.apply (node.getElementsByTagName ('layer') || []);
+
+					var nodeData = {
+						// usually there is only one child node
+						svgName: layerView.getAttribute ('image'),
+						layers: layerNodes.map (layerNode => layerNode.getAttribute ('layerId'))
+					};
+
+					fzpData[viewType] = nodeData;
+
+					// find the breadboard view
+					// WTF: fritzing file name in the zip archive and fzp file doesn't match!
+					if (viewType === 'breadboard') {
+						// !breadboardName &&
+						var metaBBName = layerView.getAttribute ('image').replace (/^(?:breadboard\/)?/, 'svg.breadboard.');
+						if (breadboardName && metaBBName !== breadboardName) {
+							// TODO: do something
+							console.error (`breadboard file names in fzp (${breadboardName}) and fzpz file (${metaBBName}) doesn't match`);
+						}
+					}
+				});
+
+				console.log (fzpData);
+
+				// TODO: show notification when breadboardName is not defined
+				// decompress it
+
+				archiveData.files[breadboardName].async ("text").then (breadboardContents => {
+
+					//console.log (breadboardContents);
+
+					// load data url into the object
+					try {
+						// var dataUrl = encodeOptimizedSVGDataUri (breadboardContents);
+						var dataUrl = svgBlob (breadboardContents);
+					} catch (e) {
+						console.log (e);
+					}
+
+					// console.log (dataUrl);
+
+					cb && cb (dataUrl);
+				})
+
+
+
+			})
+		});
+	});
+}
+
 CuwirePinout.prototype.changeBoard = function (boardId) {
 	this.boardId = boardId;
 
 	// TODO: move to boardChange function
 	this.pinoutElement.style.visibility = null;
-	this.pinoutElement.setAttribute ('data', this.baseUrl + this.boardId + '.svg');
-	this.pinoutElement.style.visibility = "visible";
+	if (boardId.match (/^https?\:\/\/.*fzpz(?:$|\?)/)) {
+		console.log ('fzpz');
+		downloadAndUnzip (githubCORSUrl (boardId), breadboardUrl => {
+			this.pinoutElement.setAttribute ('data', breadboardUrl);
+			this.pinoutElement.style.visibility = "visible";
+		});
+		// githubCORSUrl (boardId)
+	} else {
+		this.pinoutElement.setAttribute ('data', this.baseUrl + this.boardId + '.svg');
+		this.pinoutElement.style.visibility = "visible";
+	}
+}
+
+function svgToBlob (svg) {
+	var svgString = svg instanceof SVGDocument
+		? new XMLSerializer().serializeToString (svg)
+		: svg;
+
+	var svgBlob = new Blob ([svgString], {'type': "image/svg+xml"});
+
+	return URL.createObjectURL (svgBlob);
+
 }
 
 CuwirePinout.prototype.openNewWindow = function () {
@@ -68,17 +209,30 @@ CuwirePinout.prototype.openNewWindow = function () {
 	style.textContent = this.embedCSSText;
 	svgDoc.documentElement.insertBefore (style, svgDoc.documentElement.firstElementChild);
 
-	var serializer = new XMLSerializer();
-	var svg_blob = new Blob(
-		[serializer.serializeToString(svgDoc)],
-		{'type': "image/svg+xml"}
-	);
-
-	var url = URL.createObjectURL(svg_blob);
+	var url = svgToBlob (svgDoc);
 
 	var svg_win = window.open(url, "svg_win");
 }
 
+function mmSize (cssSize, dpi) {
+
+	var size;
+
+	// em and ex should never be used
+	// don't know how to convert pt an pc. are those two sizes depends on dpi?
+
+	if (cssSize.match (/^(?:\d+|\d+\.\d*|\d*\.\d+)mm$/)) {
+		size = parseFloat (cssSize);
+	} else if (cssSize.match (/^(?:\d+|\d+\.\d*|\d*\.\d+)cm$/)) {
+		size = parseFloat (cssSize)*10;
+	} else if (cssSize.match (/^(?:\d+|\d+\.\d*|\d*\.\d+)in$/)) {
+		size = parseFloat (cssSize)*25.4;
+	} else if (cssSize.match (/^(?:\d+|\d+\.\d*|\d*\.\d+)(?:px)?$/)) {
+		size = parseFloat (cssSize) / dpi * 25.4;
+	}
+
+	return size;
+}
 
 CuwirePinout.prototype.initSVGDoc = function () {
 	var svgDoc = this.pinoutSVGDoc = this.pinoutElement.getSVGDocument();
@@ -87,10 +241,21 @@ CuwirePinout.prototype.initSVGDoc = function () {
 	linkElm.setAttribute("type", "text/css");
 	linkElm.setAttribute("rel", "stylesheet");
 
+	var dpi = 90;
+	var svgString = new XMLSerializer ().serializeToString(svgDoc);
+	console.log (svgString);
+	if (svgString.match (/Illustrator/)) {
+		dpi = 72;
+	}
+
+	var svgEl = svgDoc.documentElement;
+
+	console.log (mmSize (svgEl.getAttribute ('width'), dpi), mmSize (svgEl.getAttribute ('height'), dpi));
+
 	var defs = svgDoc.querySelector ('defs');
 	if (!defs) {
 		defs = this.createSVGNode ("defs");
-		svgDoc.documentElement.insertBefore (defs, svgDoc.documentElement.firstElementChild);
+		svgEl.insertBefore (defs, svgEl.firstElementChild);
 	}
 
 	defs.appendChild(linkElm);
@@ -120,7 +285,7 @@ CuwirePinout.prototype.showLabels = function (exclude) {
 	exclude = exclude || {};
 
 	//	this.pinoutSVGDoc = this.pinoutElement
-	[].slice.apply (this.pinoutSVGDoc.querySelectorAll ('g.cuwire')).forEach (function (node) {
+	[].slice.apply (this.pinoutSVGDoc.querySelectorAll ('g.cuwire-pin')).forEach (function (node) {
 		node.parentNode.removeChild (node);
 	});
 
@@ -490,6 +655,3 @@ CuwirePinout.prototype.labelForPin = function (containerGroup, side, labelMeta) 
 	};
 
 }
-
-
-

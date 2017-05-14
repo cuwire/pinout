@@ -1,5 +1,3 @@
-import {DOMParser} from 'xmldom';
-
 import CuwirePinout from './pinout';
 
 function boardChanged () {
