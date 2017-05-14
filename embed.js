@@ -4,7 +4,7 @@
 //var fontSize;
 //var rotated = 0;
 
-function cuwirePinout (svgObjSelector, scriptSelector, options) {
+function CuwirePinout (svgObjSelector, scriptSelector, options) {
 	var embedScript = document.querySelector (scriptSelector);
 	var embedCSS = embedScript.getAttribute ('src', 2).replace (/js($|\?.*|\#.*)/, 'css');
 
@@ -47,13 +47,13 @@ function cuwirePinout (svgObjSelector, scriptSelector, options) {
 			this.initSVGDoc ();
 		}
 	} catch (e) {
-	
+
 	}
 
 	this.pinoutElement.addEventListener ('load', this.initSVGDoc.bind (this));
 }
 
-cuwirePinout.prototype.changeBoard = function (boardId) {
+CuwirePinout.prototype.changeBoard = function (boardId) {
 	this.boardId = boardId;
 
 	// TODO: move to boardChange function
@@ -62,7 +62,7 @@ cuwirePinout.prototype.changeBoard = function (boardId) {
 	this.pinoutElement.style.visibility = "visible";
 }
 
-cuwirePinout.prototype.openNewWindow = function () {
+CuwirePinout.prototype.openNewWindow = function () {
 	var svgDoc = this.pinoutSVGDoc;
 	var style = this.createSVGNode ("style");
 	style.textContent = this.embedCSSText;
@@ -80,7 +80,7 @@ cuwirePinout.prototype.openNewWindow = function () {
 }
 
 
-cuwirePinout.prototype.initSVGDoc = function () {
+CuwirePinout.prototype.initSVGDoc = function () {
 	var svgDoc = this.pinoutSVGDoc = this.pinoutElement.getSVGDocument();
 	var linkElm = svgDoc.createElementNS("http://www.w3.org/1999/xhtml", "link");
 	linkElm.setAttribute("href", "../embed.css");
@@ -100,7 +100,7 @@ cuwirePinout.prototype.initSVGDoc = function () {
 
 var svgNS = "http://www.w3.org/2000/svg";
 
-cuwirePinout.prototype.createSVGNode = function (nodeName, attrs) {
+CuwirePinout.prototype.createSVGNode = function (nodeName, attrs) {
 	var doc = this.pinoutSVGDoc;
 	var theNode = doc.createElementNS (svgNS, nodeName);
 	for (var attrName in attrs) {
@@ -115,7 +115,7 @@ function nodeCentralPoint (node) {
 	return {x: bbox.x + bbox.width/2, y: bbox.y + bbox.height/2}
 }
 
-cuwirePinout.prototype.showLabels = function (exclude) {
+CuwirePinout.prototype.showLabels = function (exclude) {
 
 	exclude = exclude || {};
 
@@ -142,7 +142,7 @@ cuwirePinout.prototype.showLabels = function (exclude) {
 
 }
 
-cuwirePinout.prototype.boardDataLoaded = function (exclude) {
+CuwirePinout.prototype.boardDataLoaded = function (exclude) {
 
 	var brdData = this.boardData;
 	var svgDoc = this.pinoutSVGDoc;
@@ -223,7 +223,7 @@ cuwirePinout.prototype.boardDataLoaded = function (exclude) {
 	}.bind (this));
 }
 
-cuwirePinout.prototype.drawLabels = function (pinSelector, side, labels, flags) {
+CuwirePinout.prototype.drawLabels = function (pinSelector, side, labels, flags) {
 	var svgDoc = this.pinoutSVGDoc;
 
 	if (labels.constructor !== Array) {
@@ -328,7 +328,7 @@ cuwirePinout.prototype.drawLabels = function (pinSelector, side, labels, flags) 
 
 }
 
-cuwirePinout.prototype.labelForPin = function (containerGroup, side, labelMeta) {
+CuwirePinout.prototype.labelForPin = function (containerGroup, side, labelMeta) {
 
 	var svgDoc = this.pinoutSVGDoc;
 
