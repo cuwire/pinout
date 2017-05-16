@@ -248,7 +248,7 @@ CuwirePinout.prototype.boardDataLoaded = function (exclude) {
 				"class": fnName,
 				title: fn[fnName],
 				scopeNum: null,
-				fn: fnName,
+				fn: null,
 			};
 
 			var complex = fnName.match (/^(alt-)?([^\-]+)-([^\-]+)?$/);
@@ -434,7 +434,8 @@ CuwirePinout.prototype.labelForPin = function (containerGroup, side, labelMeta) 
 	var ctm  = text.getCTM();
 	var sctm = text.getScreenCTM();
 
-	if (labelMeta.scopeNum) {
+	if (labelMeta.fn) {
+		if (labelMeta.scopeNum) {
 		var scopeIdText = this.createSVGNode ("text", {
 			x: pinX + labelTextOffset + this.fontSize/10 + (side === 'right' ? 0 : -1) * bbox.width,
 			y: pinY,
@@ -447,6 +448,7 @@ CuwirePinout.prototype.labelForPin = function (containerGroup, side, labelMeta) 
 		scopeIdText.textContent = labelMeta.scopeNum;
 
 		g.appendChild (scopeIdText);
+		}
 
 		var x = pinX + labelTextOffset - this.fontSize/5 + (side === 'right' ? 0 : -1) * bbox.width,
 			y = pinY;
