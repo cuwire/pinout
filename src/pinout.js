@@ -73,12 +73,16 @@ CuwirePinout.prototype.changeBoard = function (boardId) {
 	this.pinoutElement.style.visibility = null;
 	if (boardId.match (/^https?\:\/\/.*fzpz(?:$|\?)/)) {
 		console.log ('fzpz');
-		FritzingFzpz.loadFromUrl (githubCORSUrl (boardId)).then (fzpz => {
+		return FritzingFzpz.loadFromUrl (githubCORSUrl (boardId)).then (fzpz => {
 			var breadboardBlobUrl = svgToBlob (fzpz.files.breadboard.contents);
 			this.pinoutElement.setAttribute ('data', breadboardBlobUrl);
 			this.pinoutElement.style.visibility = "visible";
 
 			this.boardData = fzpz;
+
+			return fzpz;
+		}, err => {
+			console.error (err);
 		});
 
 
@@ -175,7 +179,6 @@ CuwirePinout.prototype.showLabels = function (exclude) {
 	// TODO: get names from: https://github.com/fritzing/fritzing-parts/blob/master/core/Arduino-Pro-Mini-v13-a4%2B5.fzp
 
 	// TODO: cache data
-
 	var req = new XMLHttpRequest ();
 	req.open('GET', this.baseUrl + this.boardId + '.json', true);
 	req.addEventListener ('load', function() {

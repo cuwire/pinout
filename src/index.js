@@ -7,7 +7,8 @@ function boardChanged () {
 	window.location.hash = '#' + select.value;
 
 	if (typeof window.pinout !== 'undefined') {
-		if (pinout) pinout.changeBoard (select[select.selectedIndex].dataset.url || select.value);
+		if (pinout)
+			pinout.changeBoard (select[select.selectedIndex].dataset.url || select.value);
 	}
 }
 
