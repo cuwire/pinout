@@ -487,13 +487,34 @@ CuwirePinout.prototype.labelForPin = function (containerGroup, side, labelMeta) 
 		var path = this.createSVGNode ("path", {
 			d: [
 				"M"+[lineRect.x1, lineRect.y1].join (','),
-				"l"+[(lineRect.x2-lineRect.x1)/4, 0].join (','),
-				"C"+[lineRect.x1 + (lineRect.x2-lineRect.x1)/2, lineRect.y2 - Math.abs (labelTextOffset/2)].join (','),
+				"l"+[(lineRect.x2-lineRect.x1)/8, 0].join (','),
+				"l"+[0, this.fontSize/4].join (','),
+				"l"+[(lineRect.x2-lineRect.x1)/8, 0].join (','),
+				"l"+[0, -this.fontSize/2].join (','),
+				"l"+[(lineRect.x2-lineRect.x1)/8, 0].join (','),
+				"l"+[0, this.fontSize/4].join (','),
+				"l"+[(lineRect.x2-lineRect.x1)/8, 0].join (','),
+				/*"C"+[lineRect.x1 + (lineRect.x2-lineRect.x1)/2, lineRect.y2 - Math.abs (labelTextOffset/2)].join (','),
 				[lineRect.x1 + (lineRect.x2-lineRect.x1)/2, lineRect.y2 + Math.abs (labelTextOffset/2)].join (','),
 				[lineRect.x2-(lineRect.x2-lineRect.x1)/4, lineRect.y2].join (','),
-				"l"+[(lineRect.x2-lineRect.x1)/4, 0].join (','),
+				*/
+				"l"+[(lineRect.x2-lineRect.x1)/2, 0].join (','),
 			].join (' '),
-			"stroke-width": this.fontSize/5,
+			"stroke-width": this.fontSize/8,
+		});
+
+		g.insertBefore (path, rect);
+	} else if (labelMeta.begin && labelMeta.dac) {
+		var path = this.createSVGNode ("path", {
+			d: [
+				"M"+[lineRect.x1, lineRect.y1].join (','),
+				"l"+[(lineRect.x2-lineRect.x1)/8, 0].join (','),
+				"C"+[lineRect.x1 + (lineRect.x2-lineRect.x1)*3/8, lineRect.y2 - Math.abs (labelTextOffset/2)].join (','),
+				[lineRect.x1 + (lineRect.x2-lineRect.x1)/4, lineRect.y2 + Math.abs (labelTextOffset/2)].join (','),
+				[lineRect.x2-(lineRect.x2-lineRect.x1)/2, lineRect.y2].join (','),
+				"l"+[(lineRect.x2-lineRect.x1)/2, 0].join (','),
+			].join (' '),
+			"stroke-width": this.fontSize/8,
 		});
 
 		g.insertBefore (path, rect);
@@ -503,7 +524,7 @@ CuwirePinout.prototype.labelForPin = function (containerGroup, side, labelMeta) 
 			x2: lineRect.x2,
 			y1: lineRect.y1,
 			y2: lineRect.y2,
-			"stroke-width": this.fontSize/5,
+			"stroke-width": this.fontSize/8,
 		});
 
 		g.insertBefore (line, rect);
