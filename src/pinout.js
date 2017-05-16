@@ -9,7 +9,7 @@ import FritzingFzpz from './fritzing/fzpz';
 
 export default function CuwirePinout (svgObjSelector, scriptSelector, options) {
 	var embedScript = document.querySelector (scriptSelector);
-	var embedCSS = embedScript.getAttribute ('src', 2).replace (/js($|\?.*|\#.*)/, 'css');
+	var embedCSS = this.embedCSSHref = embedScript.getAttribute ('src', 2).replace (/js($|\?.*|\#.*)/, 'css');
 
 	var req = new XMLHttpRequest ();
 	req.open('GET', embedCSS, true);
@@ -123,13 +123,13 @@ function mmSize (cssSize, dpi) {
 CuwirePinout.prototype.initSVGDoc = function () {
 	var svgDoc = this.pinoutSVGDoc = this.pinoutElement.getSVGDocument();
 	var linkElm = svgDoc.createElementNS("http://www.w3.org/1999/xhtml", "link");
-	linkElm.setAttribute("href", "../embed.css");
+	linkElm.setAttribute("href", this.embedCSSHref);
 	linkElm.setAttribute("type", "text/css");
 	linkElm.setAttribute("rel", "stylesheet");
 
 	var dpi = 90;
 	var svgString = new XMLSerializer ().serializeToString(svgDoc);
-	console.log (svgString);
+	// console.log (svgString);
 	if (svgString.match (/Illustrator/)) {
 		dpi = 72;
 	}
