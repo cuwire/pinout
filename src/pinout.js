@@ -77,12 +77,15 @@ CuwirePinout.prototype.changeBoard = function (boardId) {
 			var breadboardBlobUrl = svgToBlob (fzpz.files.breadboard.contents);
 			this.pinoutElement.setAttribute ('data', breadboardBlobUrl);
 			this.pinoutElement.style.visibility = "visible";
+
+			this.boardData = fzpz;
 		});
 
 
 	} else {
 		this.pinoutElement.setAttribute ('data', this.baseUrl + this.boardId + '.svg');
 		this.pinoutElement.style.visibility = "visible";
+		this.boardData = null;
 	}
 }
 
@@ -143,7 +146,10 @@ CuwirePinout.prototype.initSVGDoc = function () {
 
 	defs.appendChild(linkElm);
 
-	this.showLabels();
+	if (this.boardData)
+		this.boardDataLoaded ({});
+	else
+		this.showLabels ();
 }
 
 var svgNS = "http://www.w3.org/2000/svg";
@@ -186,10 +192,19 @@ CuwirePinout.prototype.showLabels = function (exclude) {
 
 CuwirePinout.prototype.boardDataLoaded = function (exclude) {
 
-	var brdData = this.boardData;
 	var svgDoc = this.pinoutSVGDoc;
 
-	var meta = brdData.cuwire.meta;
+	var brdData = this.boardData;
+
+	if (this.boardData instanceof FritzingFzpz) {
+		brdData = this.boardData.meta.connectors;
+	}
+
+	var meta = {
+		reference: ['breadboard', 'breadboard']
+	};
+
+	if (brdData.cuwire) meta = brdData.cuwire.meta;
 
 	// TODO: get sibling nodes
 	var refPin0 = svgDoc.querySelector ('[id^='+meta.reference[0]+']');

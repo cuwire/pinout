@@ -17,6 +17,9 @@ export default class FritzingFzp {
 				breadboard: undefined,
 				pcb: undefined,
 				schematic: undefined,
+			},
+			connectors: {
+
 			}
 		};
 
@@ -60,6 +63,37 @@ export default class FritzingFzp {
 				}
 				*/
 			}
+		});
+
+		var connectors = fzpRoot.getElementsByTagName ('connectors')[0];
+		[].slice.apply (connectors.childNodes).forEach (node => {
+
+			if (!node.localName || node.localName !== 'connector')
+				return;
+
+			var connectorId   = node.getAttribute ('id');
+			var functionNodes = node.getElementsByTagName ('function');
+
+			if (!functionNodes || !functionNodes.length) {
+				return;
+			}
+
+			var connectorData = {
+				fn: {},
+				side: "right",
+				flags: {}
+			};
+
+			[].slice.apply (functionNodes).forEach (fnNode => {
+				connectorData.fn[[
+					fnNode.getAttribute ('class'),
+					fnNode.getAttribute ('instance')
+				].filter (a => a).join ('-')] = fnNode.getAttribute ('name')
+			})
+
+
+			fzpData.connectors[connectorId] = connectorData;
+
 		});
 
 		return new FritzingFzp (fzpData);
