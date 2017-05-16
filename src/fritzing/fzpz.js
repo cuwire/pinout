@@ -11,8 +11,8 @@ export default class FritzingFzpz {
 
 	static handleFiles (url, archiveData, cb) {
 
-		console.info (Object.keys (archiveData.files));
-		var filenames = Object.keys (archiveData.files);
+		// console.info (Object.keys (archiveData.files));
+		var filenames = Object.keys (archiveData.files).filter (filename => !archiveData.files[filename].dir);
 
 		// non optimal, but readable
 		var fzpName = filenames.filter (file => file.match (/^part\..*fzp$/))[0];
@@ -30,7 +30,12 @@ export default class FritzingFzpz {
 			};
 
 			filenames.forEach ((filename, idx) => {
-				var [, type, format] = filename.match (/^(svg\.(?:pcb|icon|breadboard|schematic)|part)\..*\.(fzp|svg)$/);
+				var nameMatch = filename.match (/^(svg\.(?:pcb|icon|breadboard|schematic)|part)\..*\.(fzp|svg)$/);
+
+				if (!nameMatch)
+					return;
+
+				var [, type, format] = nameMatch;
 				files[type.replace ('svg.', '')] = {
 					filename,
 					format,
