@@ -2,40 +2,18 @@ import {DOMParser, XMLSerializer} from 'xmldom';
 
 import {
 	nodeCentralPoint,
-	svgToBlob
+	svgToBlob,
+	viewportConvert,
+	viewportCoords
 } from './svg-tools';
 
 import FritzingFzpz from './fritzing/fzpz';
 
-export default function CuwirePinout (svgObjSelector, scriptSelector, options) {
-	var embedScript = document.querySelector (scriptSelector);
-	var embedCSS = this.embedCSSHref = embedScript.getAttribute ('src', 2).replace (/js($|\?.*|\#.*)/, 'css');
+export default function CuwirePinout (options) {
 
-	var req = new XMLHttpRequest ();
-	req.open('GET', embedCSS, true);
-	req.addEventListener ('load', function() {
-//		console.log (req.status);
-		if ((req.status === 0 && req.responseText) || req.status == 200) {
-			this.embedCSSText = req.responseText;
+	this.fetchCSS (options.script);
 
-			// TODO: add event emit
-			var openForSaveBtn = document.getElementById ('open-for-save');
-			if (openForSaveBtn) {
-				openForSaveBtn.disabled = false;
-				openForSaveBtn.onclick = function () {
-					this.openNewWindow();
-					return false;
-				}.bind (this)
-			}
-		}
-	}.bind (this), false);
-//	req.addEventListener ("loadend", function (e) {
-//		console.log ('loadend', e);
-//		console.log (req.status);
-//	}, false);
-	req.send (null);
-
-	this.pinoutElement = svgObjSelector instanceof Node ? svgObjSelector : document.querySelector (svgObjSelector);
+	this.bindUI (options);
 
 	var url = this.pinoutElement.data;
 	var urlSplit = url.split (/([^\/]+)\.svg$/);
@@ -66,6 +44,83 @@ function githubCORSUrl (githubUrl) {
 		.replace (/\/blob/, "")
 }
 
+CuwirePinout.prototype.fetchCSS = function (scriptSelector) {
+	var embedScript = document.querySelector (scriptSelector);
+	var embedCSS = this.embedCSSHref = embedScript.getAttribute ('src', 2).replace (/js($|\?.*|\#.*)/, 'css');
+
+	var req = new XMLHttpRequest ();
+	req.open('GET', embedCSS, true);
+	req.addEventListener ('load', () => {
+		//		console.log (req.status);
+		if ((req.status === 0 && req.responseText) || req.status == 200) {
+			this.embedCSSText = req.responseText;
+		}
+	}, false);
+	//	req.addEventListener ("loadend", function (e) {
+	//		console.log ('loadend', e);
+	//		console.log (req.status);
+	//	}, false);
+	req.send (null);
+}
+
+CuwirePinout.prototype.bindUI = function (options = {}) {
+
+	var containerEl;
+	if (options.container) {
+		containerEl = options.container instanceof Node
+			? options.container
+			: document.querySelector (options.container);
+
+		console.log (containerEl, options.container);
+
+		// actually, UI contains view object, p to show status and optional buttons to export data
+		// no need to use frameworks here
+		if (containerEl.childNodes.length === 0 || containerEl.textContent.match (/^[\s\t\n\r]*$/)) {
+			this.buildUI ();
+		}
+
+		this.container = containerEl;
+	}
+
+	if (!options.view)
+		options.view = 'object'; // use first object element
+
+	this.pinoutElement = options.view instanceof Node ? options.view : (containerEl || document).querySelector (options.view);
+
+	// safari export as octet stream is fixed, no need in this code anymore
+	/*
+	// TODO: add event emit
+	var openForSaveBtn = (containerEl || document).querySelector ('#open-for-save');
+	if (openForSaveBtn) {
+		openForSaveBtn.disabled = false;
+		openForSaveBtn.onclick = () => {
+			this.openNewWindow();
+			return false;
+		}
+	}
+	*/
+
+	this.exportSvgLink = (containerEl || document).querySelector (options.exportSvg);
+
+	this.exportPngLink = (containerEl || document).querySelector (options.exportPng);
+}
+
+CuwirePinout.prototype.setViewData = function (url, svgSource) {
+
+	var svg, svgOctetStream;
+	// svg string
+	if (svgSource) {
+		svg = svgToBlob (svgSource);
+	} else {
+		svg = url;
+	}
+
+	this.pinoutElement.setAttribute ('type', 'image/svg+xml');
+	this.pinoutElement.setAttribute ('data', svg);
+	this.pinoutElement.style.visibility = "visible";
+
+}
+
 CuwirePinout.prototype.changeBoard = function (boardId) {
 	this.boardId = boardId;
 
@@ -74,9 +129,7 @@ CuwirePinout.prototype.changeBoard = function (boardId) {
 	if (boardId.match (/^https?\:\/\/.*fzpz(?:$|\?)/)) {
 		console.log ('fzpz');
 		return FritzingFzpz.loadFromUrl (githubCORSUrl (boardId)).then (fzpz => {
-			var breadboardBlobUrl = svgToBlob (fzpz.files.breadboard.contents);
-			this.pinoutElement.setAttribute ('data', breadboardBlobUrl);
-			this.pinoutElement.style.visibility = "visible";
+			this.setViewData (boardId, fzpz.files.breadboard.contents);
 
 			this.boardData = fzpz;
 
@@ -87,8 +140,7 @@ CuwirePinout.prototype.changeBoard = function (boardId) {
 
 
 	} else {
-		this.pinoutElement.setAttribute ('data', this.baseUrl + this.boardId + '.svg');
-		this.pinoutElement.style.visibility = "visible";
+		this.setViewData (this.baseUrl + this.boardId + '.svg');
 		this.boardData = null;
 	}
 }
@@ -103,6 +155,49 @@ CuwirePinout.prototype.openNewWindow = function () {
 
 	var svg_win = window.open(url, "svg_win");
 }
+
+CuwirePinout.prototype.updateSvgLink = function () {
+
+	if (!this.exportSvgLink)
+		return;
+
+	this.exportSvgLink.disabled = false;
+
+	var url = svgToBlob (this.pinoutSVGDoc, {type: "octet/stream"});
+
+	this.exportSvgLink.href = url;
+	// TODO: use real url
+	this.exportSvgLink.download = 'pinout.svg';
+	// window.URL.revokeObjectURL(url);
+
+}
+
+CuwirePinout.prototype.updatePngLink = function () {
+
+	if (!this.exportPngLink)
+		return;
+
+	this.exportPngLink.disabled = false;
+
+	var url = svgToBlob (this.pinoutSVGDoc);
+
+	var canvas = document.getElementById("canvas");
+	var ctx = canvas.getContext("2d");
+	var img = new Image();
+	img.onload = () => {
+		ctx.drawImage (img, 0, 0);
+		var png = canvas.toDataURL ("image/png");
+
+		this.exportPngLink.href = png.replace (/^data:image\/png/, 'data:octet/stream');
+		this.exportPngLink.download = 'pinout.png';
+
+		window.URL.revokeObjectURL(png);
+		// window.URL.revokeObjectURL(url);
+	};
+
+	img.src = url;
+}
+
 
 function mmSize (cssSize, dpi) {
 
@@ -131,21 +226,57 @@ CuwirePinout.prototype.initSVGDoc = function () {
 	linkElm.setAttribute("type", "text/css");
 	linkElm.setAttribute("rel", "stylesheet");
 
+	/*
+	var style = this.createSVGNode ("style");
+	style.textContent = this.embedCSSText;
+	svgDoc.documentElement.insertBefore (style, svgDoc.documentElement.firstElementChild);
+	*/
+
 	var dpi = 90;
 	var svgString = new XMLSerializer ().serializeToString(svgDoc);
 	// console.log (svgString);
 	if (svgString.match (/Illustrator/)) {
 		dpi = 72;
+	} else if (svgString.match (/inkscape/)) {
+		dpi = 90;
 	}
 
-	var svgEl = svgDoc.documentElement;
+	this.dpi = dpi;
 
-	console.log (mmSize (svgEl.getAttribute ('width'), dpi), mmSize (svgEl.getAttribute ('height'), dpi));
+	var svgRoot = svgDoc.documentElement;
+
+	this.metricWidth  = mmSize (svgRoot.getAttribute ('width'), dpi);
+	this.metricHeight = mmSize (svgRoot.getAttribute ('height'), dpi);
+
+	var viewBox = svgRoot.getAttribute ('viewBox').split(/\s+|,/).map (v => parseFloat(v));
+
+	console.log (this.metricWidth/(viewBox[2] - viewBox[0]), this.metricHeight/(viewBox[3] - viewBox[1]));
+
+	this.unitsInmm = this.metricWidth/(viewBox[2] - viewBox[0]);
+
+	console.log (
+		"width: %s, height: %s",
+		this.metricWidth,
+		this.metricHeight
+	);
+
+	var offset = svgRoot.getBoundingClientRect();
+	// console.log ('Offset', offset, 'viewBox', );
+
+	this.center = nodeCentralPoint (svgRoot);
+
+	var pinoutNode = svgDoc.querySelector ('g.pinout');
+	if (!pinoutNode) {
+		pinoutNode = this.createSVGNode ('g', {'class': 'pinout'});
+		svgRoot.appendChild (pinoutNode);
+	}
+
+	this.pinoutNode = pinoutNode;
 
 	var defs = svgDoc.querySelector ('defs');
 	if (!defs) {
 		defs = this.createSVGNode ("defs");
-		svgEl.insertBefore (defs, svgEl.firstElementChild);
+		svgRoot.insertBefore (defs, svgRoot.firstElementChild);
 	}
 
 	defs.appendChild(linkElm);
@@ -209,39 +340,119 @@ CuwirePinout.prototype.boardDataLoaded = function (exclude) {
 
 	if (brdData.cuwire) meta = brdData.cuwire.meta;
 
-	// TODO: get sibling nodes
-	var refPin0 = svgDoc.querySelector ('[id^='+meta.reference[0]+']');
+	// let's find pin rows/columns
+	var rows = {};
+	var cols = {};
 
-	var refPin1 = svgDoc.querySelector ('[id^='+meta.reference[1]+']');
+	Object.keys (brdData).forEach ((connectorId) => {
+		if (connectorId === 'cuwire') {
+			return;
+		}
 
-	// console.log (meta.reference[0], refPin0, meta.reference[1], refPin1);
+		var connectorNode = svgDoc.querySelector ('[id^='+connectorId+']');
 
-	var refPin0CP = nodeCentralPoint (refPin0);
-	var refPin1CP = nodeCentralPoint (refPin1);
+		if (!connectorNode)
+			return;
 
-	var deltaX = refPin0CP.x - refPin1CP.x;
-	var deltaY = refPin0CP.y - refPin1CP.y;
+		// var coords = viewportCoords (connectorNode);
+		var coords = viewportConvert (connectorNode);
 
-	this.pitch = Math.abs (deltaY);
-	if (Math.abs (deltaX) > Math.abs (deltaY)) {
-		this.rotated = (deltaX === Math.abs (deltaX) ? 180 : 0) - 90;
-		this.pitch = Math.abs (deltaX);
+		if (brdData[connectorId].display === 'hover') {
+			return;
+		}
+
+		// TODO: use dpi
+		if (rows[coords.y.toFixed (3)]) {
+			rows[coords.y.toFixed (3)].push ({id: connectorId, x: coords.x, y: coords.y});
+		} else {
+			rows[coords.y.toFixed (3)] = [{id: connectorId, x: coords.x, y: coords.y}];
+		}
+
+		if (cols[coords.x.toFixed (3)]) {
+			cols[coords.x.toFixed (3)].push ({id: connectorId, x: coords.x, y: coords.y});
+		} else {
+			cols[coords.x.toFixed (3)] = [{id: connectorId, x: coords.x, y: coords.y}];
+		}
+
+
+		console.log (Object.assign (coords, {id: connectorNode.id}));
+		// console.log (connectorNode);
+	});
+
+	var pitches = {};
+
+	var pinRows = Object.keys(rows)
+		// exclude parralel rows/columns; can be issue for teensy 3.1
+		.filter(row => rows[row].length > 2)
+		.reduce((obj, key) => {
+			obj[key] = rows[key];
+			return obj;
+	}, {});
+
+	var pinCols = Object.keys(cols)
+		.filter(col => cols[col].length > 2)
+		.reduce((obj, key) => {
+			obj[key] = cols[key];
+			return obj;
+	}, {});
+
+	var maxRowLength = 0,
+		maxColLength = 0;
+
+	Object.keys (pinRows).forEach (y => {
+		maxRowLength = Math.max (maxRowLength, pinRows[y].length);
+		pinRows[y]
+			.sort ((a, b) => a.x - b.x)
+			.forEach ((pin, pinIdx, pins) => {
+			if (pinIdx === 0) return;
+			var pitch = (pin.x - pins[pinIdx - 1].x).toFixed (3);
+			pitches[pitch] = pitches[pitch] + 1 || 1;
+		})
+	})
+
+	Object.keys (pinCols).forEach (x => {
+		maxColLength = Math.max (maxColLength, pinCols[x].length);
+		pinCols[x]
+			.sort ((a, b) => a.y - b.y)
+			.forEach ((pin, pinIdx, pins) => {
+			if (pinIdx === 0) return;
+			// console.log (a.y, b.y, a.y - b.y);
+			var pitch = (pin.y - pins[pinIdx - 1].y).toFixed (3);
+			pitches[pitch] = pitches[pitch] + 1 || 1;
+		})
+	})
+
+	console.log (pinRows);
+	console.log (pinCols);
+
+	// assume longest pin set to be vertical
+	if (maxColLength > maxRowLength) {
+		// no rotation
+		this.rotated = 0;
 	} else {
-		this.rotated = deltaY === Math.abs (deltaY) ? 180 : 0;
+		// rotate 90º
+		this.rotated = 90;
 	}
+
+	var pitch = Object.keys (pitches).sort ((a, b) => pitches[b] - pitches[a])[0];
+
+	console.log ('pitch %fmm', (pitch*this.unitsInmm).toFixed (3), pitches, pitch);
+
+	this.pitch = parseFloat (pitch);
+
+	console.log (this.pitch);
 
 	this.fontSize = this.pitch * .75;
 
-	Object.keys (brdData).forEach (function (connector) {
-		if (connector === 'cuwire') {
+	Object.keys (brdData).forEach ((connectorId) => {
+		if (connectorId === 'cuwire') {
 			return;
 		}
-		var side = brdData[connector].side;
 
-		var fn = brdData[connector].fn;
+		var fn = brdData[connectorId].fn;
 		var fnList = [];
 
-		Object.keys (fn).forEach (function (fnName) {
+		Object.keys (fn).forEach ((fnName) => {
 
 			if (fnName.match(/^x\-/)) {
 				return;
@@ -277,22 +488,32 @@ CuwirePinout.prototype.boardDataLoaded = function (exclude) {
 			fnList.push (pinData);
 		});
 
-		if (brdData[connector].flags) {
-			if (brdData[connector].flags["5v"]) {
+		if (brdData[connectorId].flags) {
+			if (brdData[connectorId].flags["5v"]) {
 				fnList.push ({"class": "5v flag", title: "➄", flag: true});
 			}
-			if (brdData[connector].flags.touch) {
+			if (brdData[connectorId].flags.touch) {
 				fnList.push ({"class": "touch flag", title: "☟", flag: true});
 			}
 		}
 
 		//				console.log (fn, fnList);
-		this.drawLabels (connector, side, fnList, brdData[connector].flags);
-	}.bind (this));
+
+		this.drawLabels (connectorId, fnList, brdData[connectorId].flags);
+	});
+
+	this.updateSvgLink ();
+	this.updatePngLink ();
 }
 
-CuwirePinout.prototype.drawLabels = function (pinSelector, side, labels, flags) {
+CuwirePinout.prototype.drawLabels = function (connectorId, labels, flags) {
+
 	var svgDoc = this.pinoutSVGDoc;
+
+	var connectorNode = svgDoc.querySelector ('[id^='+connectorId+']');
+
+	if (!connectorNode)
+		return;
 
 	if (labels.constructor !== Array) {
 		labels = [labels];
@@ -304,26 +525,32 @@ CuwirePinout.prototype.drawLabels = function (pinSelector, side, labels, flags) 
 	var labelMinX = 0;
 	var labelMaxX = 0;
 
-	var connectorNode = svgDoc.querySelector ('[id^='+pinSelector+']');
+	var coords = viewportConvert (connectorNode);
 
-	if (!connectorNode)
-		return;
-
-	var connectorCenter = nodeCentralPoint (connectorNode);
-
-	var pinX = connectorCenter.x;
-	var pinY = connectorCenter.y;
+	var side;
+	if (this.rotated === 0 && this.center.x > coords.x) {
+		side = 'left';
+	} else if (this.rotated === 0 && this.center.x <= coords.x) {
+		side = 'right';
+	} else if (this.rotated === 90 && this.center.y <= coords.y) {
+		side = 'left';
+	} else if (this.rotated === 90 && this.center.y <= coords.y) {
+		side = 'right';
+	}
 
 	var g = this.createSVGNode ("g", {
 		class: 'cuwire-pin',
-		transform: "rotate("+this.rotated+" "+pinX+" "+pinY+")",
+		transform: "translate("+coords.x+", "+coords.y+") rotate("+this.rotated+")",
+		'data-side': side,
+		for: connectorId,
+		// transform: "rotate("+this.rotated+" "+pinX+" "+pinY+")",
 		// x: pinX+10,
 		// y: pinY,
 		// "font-size": fontSize,
 		// fill: "white"
 	});
 
-	connectorNode.parentElement.insertBefore (g, connectorNode.nextSibling);
+	this.pinoutNode.appendChild (g);
 
 	labels.forEach (function (labelMeta) {
 		labelMeta = Object.create (labelMeta);
@@ -331,8 +558,8 @@ CuwirePinout.prototype.drawLabels = function (pinSelector, side, labels, flags) 
 			labelMeta.x = labelOffset.x;
 			labelMeta.y = labelOffset.y;
 		} else {
-			labelMeta.x = pinX;
-			labelMeta.y = pinY;
+			labelMeta.x = 0; // pinX;
+			labelMeta.y = 0; // pinY;
 			labelMeta.begin = true;
 			if (flags.pwm) {
 				labelMeta.pwm = true;

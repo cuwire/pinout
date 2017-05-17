@@ -78,10 +78,13 @@ export default class FritzingFzp {
 				return;
 			}
 
+			var pinoutView = node.getElementsByTagName ('pinoutView')[0];
+
 			var connectorData = {
 				fn: {},
 				side: "right",
-				flags: {}
+				flags: {},
+				display: pinoutView ? pinoutView.getAttribute ('display') : undefined
 			};
 
 			[].slice.apply (functionNodes).forEach (fnNode => {
