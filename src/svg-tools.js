@@ -105,7 +105,7 @@ export function showWholeSVG (svgDoc) {
 	var svgBBox = svgDoc.documentElement.getBBox();
 	svgDoc.documentElement.setAttribute (
 		'viewBox',
-		[svgBBox.x, svgBBox.y, svgBBox.x + svgBBox.width, svgBBox.y + svgBBox.height].join (' ')
+		[svgBBox.x, svgBBox.y, svgBBox.width, svgBBox.height].join (' ')
 	);
 
 	svgDoc.documentElement.setAttribute (
