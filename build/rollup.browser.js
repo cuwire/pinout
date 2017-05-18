@@ -6,6 +6,9 @@ import alias from 'rollup-plugin-alias';
 
 import buble from 'rollup-plugin-buble';
 
+import {rollup} from 'rollup';
+import scss from 'rollup-plugin-scss';
+
 export default {
 	entry: 'src/index.js',
 	format: 'iife',
@@ -18,8 +21,11 @@ export default {
 		nodeResolve({ jsnext: true, module: true }),
 		commonjs()
 		*/
+		scss({
+			output: 'dist/boards.css'
+		})
 	],
-	dest: 'build/boards.js',
+	dest: 'dist/boards.js',
 	external: [
 		'xmldom',
 		'jszip',

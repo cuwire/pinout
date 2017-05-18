@@ -1,3 +1,5 @@
+import '../assets/pinout.sass';
+
 import CuwirePinout from './pinout';
 
 function boardChanged () {

@@ -1,6 +1,11 @@
 g.cuwire-pin text {
 	fill: white;
 	font-family: sans-serif;
+	text-transform: uppercase;
+}
+
+g.cuwire-pin text.class {
+	text-transform: none;
 }
 
 g.cuwire-pin .flag text {
@@ -14,21 +19,23 @@ g.cuwire-pin .alt text {
 
 g.cuwire-pin rect {
 	fill: gray;
-	stroke: silver;
+	stroke: #555;
 }
+
+g.cuwire-pin line, g.cuwire-pin path {
+	fill: none;
+	stroke: #555;
+	stroke-linecap: round;
+}
+
 
 g.cuwire-pin .gnd rect {
-	fill: black;
+	fill: #333;
 	stroke: silver;
 }
 
-g.cuwire-pin .digital rect {
+g.cuwire-pin .digital rect, g.cuwire-pin .gpio rect {
 	fill: #065598;
-	stroke: silver;
-}
-
-g.cuwire-pin .analog-rw rect {
-	fill: #640064;
 	stroke: silver;
 }
 
@@ -71,22 +78,16 @@ g.cuwire-pin .jtag rect {
 }
 
 
-g.cuwire-pin .power rect {
-	fill: red;
+g.cuwire-pin .power rect, g.cuwire-pin .pwr rect {
+	fill: rgb(255, 64, 64);
 	stroke: silver;
 }
 
-g.cuwire-pin .system rect {
+g.cuwire-pin .system rect, g.cuwire-pin .sys rect {
 	fill: white;
 	stroke: silver;
 }
 
-g.cuwire-pin .system text {
+g.cuwire-pin .system text, g.cuwire-pin .sys text {
 	fill: black;
-}
-
-g.cuwire-pin line, g.cuwire-pin path {
-	fill: none;
-	stroke: silver;
-	stroke-linecap: round;
 }
