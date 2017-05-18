@@ -54,6 +54,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 		window.pinout = new CuwirePinout ({
 			container: '#cuwire-pinout',
 			script: '#cuwire-pinout-script',
+			sizeInfo: '.size-info',
 			exportSvg: '.export-svg',
 			exportPng: '.export-png',
 			boardId: getSiteUrl (select[select.selectedIndex || 0].dataset.url) || select.value

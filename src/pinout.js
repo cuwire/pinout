@@ -104,6 +104,10 @@ CuwirePinout.prototype.bindUI = function (options = {}) {
 	}
 	*/
 
+
+
+	this.sizeInfo = (containerEl || document).querySelector (options.sizeInfo);
+
 	this.exportSvgLink = (containerEl || document).querySelector (options.exportSvg);
 
 	this.exportPngLink = (containerEl || document).querySelector (options.exportPng);
@@ -161,6 +165,19 @@ CuwirePinout.prototype.openNewWindow = function () {
 
 	var svg_win = window.open(url, "svg_win");
 }
+
+CuwirePinout.prototype.updateSizeInfo = function () {
+
+	if (!this.sizeInfo)
+		return;
+
+	this.sizeInfo.innerHTML =
+		'w: ' + this.metricWidth.toFixed (2) + 'mm, ' +
+		'h: ' + this.metricHeight.toFixed (2) + 'mm, ' +
+		'pitch: ' + (this.pitch * this.unitsInmm).toFixed (2) + 'mm'
+
+}
+
 
 CuwirePinout.prototype.updateSvgLink = function () {
 
@@ -425,6 +442,8 @@ CuwirePinout.prototype.getPinRowsOrientation = function () {
 
 		svgRoot.appendChild (rotatedG);
 
+		[this.metricHeight, this.metricWidth] = [this.metricWidth, this.metricHeight];
+
 		// console.log ('main g', svgDoc.querySelectorAll ('svg>g'));
 
 		// rotate 90º
@@ -437,10 +456,7 @@ CuwirePinout.prototype.getPinRowsOrientation = function () {
 
 	this.pitch = parseFloat (pitch);
 
-	console.log (this.pitch);
-
 	this.fontSize = this.pitch * .75;
-
 }
 
 
@@ -460,7 +476,7 @@ CuwirePinout.prototype.drawLabels = function (exclude = {}) {
 		node.parentNode.removeChild (node);
 	});
 
-	console.log (brdData);
+	// console.log (brdData);
 
 	this.getPinRowsOrientation ();
 
@@ -482,6 +498,8 @@ CuwirePinout.prototype.drawLabels = function (exclude = {}) {
 
 	Object.keys (brdData).forEach ((connectorId) => {
 
+		// console.log (brdData[connectorId]);
+
 		var pinData = brdData[connectorId];
 		if (!(pinData.fn instanceof Array)) {
 			pinData = convertJsonMeta (connectorId, pinData);
@@ -498,14 +516,17 @@ CuwirePinout.prototype.drawLabels = function (exclude = {}) {
 
 	this.updateSvgLink ();
 	this.updatePngLink ();
+	this.updateSizeInfo ();
 
 }
+
+// http://www.petercollingridge.co.uk/data-visualisation/mouseover-effects-svgs
 
 CuwirePinout.prototype.drawPin = function (connectorId, pinData) {
 
 	var svgDoc = this.pinoutSVGDoc;
 
-	console.log (pinData);
+	// console.log (pinData);
 
 	var connectorNode = pinData.svgId
 		? svgDoc.querySelector ('#'+pinData.svgId)
