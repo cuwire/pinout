@@ -91,7 +91,7 @@ export default class FritzingFzpz {
 			return promisify (FritzingFzpz.loadFromUrl.bind (FritzingFzpz, url));
 
 		JSZipUtils.getBinaryContent (url, function (err, data) {
-			if(err) {
+			if (err) {
 				throw err; // TODO: handle err
 			}
 

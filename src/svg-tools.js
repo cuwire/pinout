@@ -1,7 +1,14 @@
 export function nodeCentralPoint (node) {
 	if (!node) console.trace (node);
 	var bbox = node.getBBox();
-	return {x: bbox.x + bbox.width/2, y: bbox.y + bbox.height/2}
+	return {
+		x: bbox.x + bbox.width/2,
+		y: bbox.y + bbox.height/2,
+		x1: bbox.x,
+		y1: bbox.y,
+		x2: bbox.x + bbox.width,
+		y2: bbox.y + bbox.height
+	}
 }
 
 // https://codepen.io/tigt/post/optimizing-svgs-in-data-uris
@@ -25,9 +32,12 @@ export function encodeOptimizedSVGDataUri (svgString) {
 }
 
 export function svgToBlob (svg, options = {}) {
-	var svgString = svg instanceof SVGDocument
-		? new XMLSerializer().serializeToString (svg)
-		: svg;
+	var svgString;
+	try {
+		svgString = new XMLSerializer().serializeToString (svg);
+	} catch (e) {
+		svgString = svg;
+	}
 
 	var svgBlob = new Blob ([svgString], Object.assign ({type: "image/svg+xml"}, options));
 
@@ -88,4 +98,24 @@ export function viewportCoords (el) {
 			(matrix.d * bbox.y)
 		),
 	};
+}
+
+
+export function showWholeSVG (svgDoc) {
+	var svgBBox = svgDoc.documentElement.getBBox();
+	svgDoc.documentElement.setAttribute (
+		'viewBox',
+		[svgBBox.x, svgBBox.y, svgBBox.x + svgBBox.width, svgBBox.y + svgBBox.height].join (' ')
+	);
+
+	svgDoc.documentElement.setAttribute (
+		'width',
+		svgBBox.width
+	);
+
+	svgDoc.documentElement.setAttribute (
+		'height',
+		svgBBox.height
+	);
+
 }

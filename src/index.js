@@ -12,6 +12,13 @@ function boardChanged () {
 	}
 }
 
+function getSiteUrl (url) {
+	if (url === undefined) return;
+	var a = document.createElement ('a');
+	a.href = url;
+	return a.href;
+}
+
 document.addEventListener("DOMContentLoaded", function(event) {
 
 	var boardImg = document.querySelector ('#board-image-tab object');
@@ -42,15 +49,22 @@ document.addEventListener("DOMContentLoaded", function(event) {
 			select.value = boardId;
 		}
 
-		window.pinout = new CuwirePinout ('#cuwire-pinout-image', '#cuwire-pinout-script', {
-			boardId: select[select.selectedIndex].dataset.url || select.value
+		window.pinout = new CuwirePinout ({
+			container: '#cuwire-pinout',
+			script: '#cuwire-pinout-script',
+			exportSvg: '.export-svg',
+			exportPng: '.export-png',
+			boardId: getSiteUrl (select[select.selectedIndex || 0].dataset.url) || select.value
 		});
 
 		select.addEventListener ("change", boardChanged);
 
 	} else if (multiplePinoutNodes.length) {
 		multiplePinoutNodes.forEach (function (node) {
-			new CuwirePinout (node, '#cuwire-pinout-script', {});
+			new CuwirePinout ({
+				view: node,
+				script: '#cuwire-pinout-script'
+			});
 		});
 	}
 

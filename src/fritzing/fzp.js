@@ -1,5 +1,11 @@
 import {DOMParser} from 'xmldom';
 
+function parseBoolean (value) {
+	if (value === "false")
+		return false;
+	return Boolean (value);
+}
+
 export default class FritzingFzp {
 
 	static parseFromString (fzpContents) {
@@ -71,29 +77,41 @@ export default class FritzingFzp {
 			if (!node.localName || node.localName !== 'connector')
 				return;
 
-			var connectorId   = node.getAttribute ('id');
-			var functionNodes = node.getElementsByTagName ('function');
+			var breadboardView = node.getElementsByTagName ('breadboardView')[0];
+			// this should be defined
+			var svgId = breadboardView.firstElementChild.getAttribute ('svgId');
 
-			if (!functionNodes || !functionNodes.length) {
+			var connectorId   = node.getAttribute ('id');
+			var signalNodes = node.getElementsByTagName ('signal');
+
+			if (!signalNodes || !signalNodes.length) {
+				fzpData.connectors[connectorId] = {
+					fn: [{
+						group: 'name',
+						name: node.getAttribute ('name')
+					}],
+					svgId: svgId,
+				}
 				return;
 			}
 
 			var pinoutView = node.getElementsByTagName ('pinoutView')[0];
 
 			var connectorData = {
-				fn: {},
-				side: "right",
-				flags: {},
+				fn: [],
+				svgId: svgId,
 				display: pinoutView ? pinoutView.getAttribute ('display') : undefined
 			};
 
-			[].slice.apply (functionNodes).forEach (fnNode => {
-				connectorData.fn[[
-					fnNode.getAttribute ('class'),
-					fnNode.getAttribute ('instance')
-				].filter (a => a).join ('-')] = fnNode.getAttribute ('name')
-			})
-
+			[].slice.apply (signalNodes).forEach (fnNode => {
+				connectorData.fn.push ({
+					group:    (fnNode.getAttribute ('group') || '').toLowerCase(),
+					groupNum: (fnNode.getAttribute ('groupNum') || '').toLowerCase(),
+					name:     (fnNode.getAttribute ('name') || '').toLowerCase(),
+					alt:      parseBoolean (fnNode.getAttribute ('alt')),
+					hidden:   parseBoolean (fnNode.getAttribute ('hidden'))
+				});
+			});
 
 			fzpData.connectors[connectorId] = connectorData;
 

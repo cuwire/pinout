@@ -4,14 +4,15 @@ import {
 	nodeCentralPoint,
 	svgToBlob,
 	viewportConvert,
-	viewportCoords
+	viewportCoords,
+	showWholeSVG
 } from './svg-tools';
 
 import FritzingFzpz from './fritzing/fzpz';
 
-export default function CuwirePinout (options) {
+import {convertJsonMeta} from './legacy';
 
-	this.fetchCSS (options.script);
+export default function CuwirePinout (options = {}) {
 
 	this.bindUI (options);
 
@@ -20,9 +21,11 @@ export default function CuwirePinout (options) {
 	this.baseUrl = urlSplit[0];
 	this.boardId = urlSplit[1];
 
-	if (options && options.boardId) {
-		this.changeBoard (options.boardId);
-	}
+	this.pinoutElement.data = '';
+
+	this.fetchCSS (options.script, () => {
+		this.changeBoard (options.boardId || url);
+	});
 
 	// console.log (this.baseUrl); // , embedCSS);
 
@@ -44,7 +47,7 @@ function githubCORSUrl (githubUrl) {
 		.replace (/\/blob/, "")
 }
 
-CuwirePinout.prototype.fetchCSS = function (scriptSelector) {
+CuwirePinout.prototype.fetchCSS = function (scriptSelector, cb) {
 	var embedScript = document.querySelector (scriptSelector);
 	var embedCSS = this.embedCSSHref = embedScript.getAttribute ('src', 2).replace (/js($|\?.*|\#.*)/, 'css');
 
@@ -54,6 +57,7 @@ CuwirePinout.prototype.fetchCSS = function (scriptSelector) {
 		//		console.log (req.status);
 		if ((req.status === 0 && req.responseText) || req.status == 200) {
 			this.embedCSSText = req.responseText;
+			cb && cb (null);
 		}
 	}, false);
 	//	req.addEventListener ("loadend", function (e) {
@@ -124,6 +128,8 @@ CuwirePinout.prototype.setViewData = function (url, svgSource) {
 CuwirePinout.prototype.changeBoard = function (boardId) {
 	this.boardId = boardId;
 
+	console.log ('changeboard called', boardId);
+
 	// TODO: move to boardChange function
 	this.pinoutElement.style.visibility = null;
 	if (boardId.match (/^https?\:\/\/.*fzpz(?:$|\?)/)) {
@@ -181,8 +187,8 @@ CuwirePinout.prototype.updatePngLink = function () {
 
 	var url = svgToBlob (this.pinoutSVGDoc);
 
-	var canvas = document.getElementById("canvas");
-	var ctx = canvas.getContext("2d");
+	var canvas = document.createElement ("canvas");
+	var ctx = canvas.getContext ("2d");
 	var img = new Image();
 	img.onload = () => {
 		ctx.drawImage (img, 0, 0);
@@ -221,16 +227,16 @@ function mmSize (cssSize, dpi) {
 
 CuwirePinout.prototype.initSVGDoc = function () {
 	var svgDoc = this.pinoutSVGDoc = this.pinoutElement.getSVGDocument();
+	/*
 	var linkElm = svgDoc.createElementNS("http://www.w3.org/1999/xhtml", "link");
 	linkElm.setAttribute("href", this.embedCSSHref);
 	linkElm.setAttribute("type", "text/css");
 	linkElm.setAttribute("rel", "stylesheet");
+	*/
 
-	/*
 	var style = this.createSVGNode ("style");
 	style.textContent = this.embedCSSText;
 	svgDoc.documentElement.insertBefore (style, svgDoc.documentElement.firstElementChild);
-	*/
 
 	var dpi = 90;
 	var svgString = new XMLSerializer ().serializeToString(svgDoc);
@@ -263,28 +269,12 @@ CuwirePinout.prototype.initSVGDoc = function () {
 	var offset = svgRoot.getBoundingClientRect();
 	// console.log ('Offset', offset, 'viewBox', );
 
-	this.center = nodeCentralPoint (svgRoot);
-
-	var pinoutNode = svgDoc.querySelector ('g.pinout');
-	if (!pinoutNode) {
-		pinoutNode = this.createSVGNode ('g', {'class': 'pinout'});
-		svgRoot.appendChild (pinoutNode);
-	}
-
-	this.pinoutNode = pinoutNode;
-
-	var defs = svgDoc.querySelector ('defs');
-	if (!defs) {
-		defs = this.createSVGNode ("defs");
-		svgRoot.insertBefore (defs, svgRoot.firstElementChild);
-	}
-
-	defs.appendChild(linkElm);
+	// defs.appendChild(linkElm);
 
 	if (this.boardData)
-		this.boardDataLoaded ({});
+		this.drawLabels ({});
 	else
-		this.showLabels ();
+		this.fetchJsonLabels ({});
 }
 
 var svgNS = "http://www.w3.org/2000/svg";
@@ -298,14 +288,7 @@ CuwirePinout.prototype.createSVGNode = function (nodeName, attrs) {
 	return theNode;
 }
 
-CuwirePinout.prototype.showLabels = function (exclude) {
-
-	exclude = exclude || {};
-
-	//	this.pinoutSVGDoc = this.pinoutElement
-	[].slice.apply (this.pinoutSVGDoc.querySelectorAll ('g.cuwire-pin')).forEach (function (node) {
-		node.parentNode.removeChild (node);
-	});
+CuwirePinout.prototype.fetchJsonLabels = function (exclude = {}) {
 
 	// TODO: get names from: https://github.com/fritzing/fritzing-parts/blob/master/core/Arduino-Pro-Mini-v13-a4%2B5.fzp
 
@@ -316,7 +299,7 @@ CuwirePinout.prototype.showLabels = function (exclude) {
 		if ((req.status === 0 && req.responseText) || req.status == 200) {
 			this.boardData = JSON.parse (req.responseText);
 
-			this.boardDataLoaded (exclude);
+			this.drawLabels (exclude);
 		}
 
 	}.bind(this));
@@ -324,9 +307,10 @@ CuwirePinout.prototype.showLabels = function (exclude) {
 
 }
 
-CuwirePinout.prototype.boardDataLoaded = function (exclude) {
+CuwirePinout.prototype.getPinRowsOrientation = function () {
 
-	var svgDoc = this.pinoutSVGDoc;
+	var svgDoc  = this.pinoutSVGDoc;
+	var svgRoot = svgDoc.documentElement;
 
 	var brdData = this.boardData;
 
@@ -334,13 +318,9 @@ CuwirePinout.prototype.boardDataLoaded = function (exclude) {
 		brdData = this.boardData.meta.connectors;
 	}
 
-	var meta = {
-		reference: ['breadboard', 'breadboard']
-	};
-
-	if (brdData.cuwire) meta = brdData.cuwire.meta;
-
 	// let's find pin rows/columns
+	// we're maping every pin x coordinate to the columns
+	// and every y to the rows
 	var rows = {};
 	var cols = {};
 
@@ -349,7 +329,9 @@ CuwirePinout.prototype.boardDataLoaded = function (exclude) {
 			return;
 		}
 
-		var connectorNode = svgDoc.querySelector ('[id^='+connectorId+']');
+		var connectorNode = brdData[connectorId].svgId
+			? svgDoc.querySelector ('#'+brdData[connectorId].svgId)
+			: svgDoc.querySelector ('[id^='+connectorId+']');
 
 		if (!connectorNode)
 			return;
@@ -375,30 +357,32 @@ CuwirePinout.prototype.boardDataLoaded = function (exclude) {
 		}
 
 
-		console.log (Object.assign (coords, {id: connectorNode.id}));
+		// console.log (Object.assign (coords, {id: connectorNode.id}));
 		// console.log (connectorNode);
 	});
 
 	var pitches = {};
 
 	var pinRows = Object.keys(rows)
-		// exclude parralel rows/columns; can be issue for teensy 3.1
-		.filter(row => rows[row].length > 2)
-		.reduce((obj, key) => {
-			obj[key] = rows[key];
-			return obj;
+	// exclude parralel rows/columns; can be issue for teensy 3.1
+	// or dual double row boards
+	.filter(row => rows[row].length > 2)
+	.reduce((obj, key) => {
+		obj[key] = rows[key];
+		return obj;
 	}, {});
 
 	var pinCols = Object.keys(cols)
-		.filter(col => cols[col].length > 2)
-		.reduce((obj, key) => {
-			obj[key] = cols[key];
-			return obj;
+	.filter(col => cols[col].length > 2)
+	.reduce((obj, key) => {
+		obj[key] = cols[key];
+		return obj;
 	}, {});
 
 	var maxRowLength = 0,
 		maxColLength = 0;
 
+	// get longest rows/columns
 	Object.keys (pinRows).forEach (y => {
 		maxRowLength = Math.max (maxRowLength, pinRows[y].length);
 		pinRows[y]
@@ -430,13 +414,26 @@ CuwirePinout.prototype.boardDataLoaded = function (exclude) {
 		// no rotation
 		this.rotated = 0;
 	} else {
+
+		var point = nodeCentralPoint (svgRoot);
+
+		var rotatedG = this.createSVGNode ('g', {'transform': 'rotate (90,' + point.x + ',' + point.y + ')'});
+
+		while (svgRoot.childNodes.length > 0) {
+			rotatedG.appendChild(svgRoot.childNodes[0]);
+		}
+
+		svgRoot.appendChild (rotatedG);
+
+		// console.log ('main g', svgDoc.querySelectorAll ('svg>g'));
+
 		// rotate 90º
-		this.rotated = 90;
+		this.rotated = 0;
 	}
 
 	var pitch = Object.keys (pitches).sort ((a, b) => pitches[b] - pitches[a])[0];
 
-	console.log ('pitch %fmm', (pitch*this.unitsInmm).toFixed (3), pitches, pitch);
+	console.log ('pitch %fmm', (pitch * this.unitsInmm).toFixed (3), pitches, pitch);
 
 	this.pitch = parseFloat (pitch);
 
@@ -444,82 +441,78 @@ CuwirePinout.prototype.boardDataLoaded = function (exclude) {
 
 	this.fontSize = this.pitch * .75;
 
-	Object.keys (brdData).forEach ((connectorId) => {
-		if (connectorId === 'cuwire') {
-			return;
-		}
+}
 
-		var fn = brdData[connectorId].fn;
-		var fnList = [];
 
-		Object.keys (fn).forEach ((fnName) => {
+CuwirePinout.prototype.drawLabels = function (exclude = {}) {
 
-			if (fnName.match(/^x\-/)) {
-				return;
-			}
+	var svgDoc  = this.pinoutSVGDoc;
+	var svgRoot = svgDoc.documentElement;
 
-			var pinData = {
-				"class": fnName,
-				title: fn[fnName],
-				scopeNum: null,
-				fn: null,
-			};
+	var brdData = this.boardData;
 
-			var complex = fnName.match (/^(alt-)?([^\-]+)-([^\-]+)?$/);
-			// usually this is [alt-]uart-1
-			if (complex) {
-				if (complex[2] === 'alt') {
-					complex.shift();
-				}
-				pinData["class"] = complex[2];
-				pinData.fn = complex[2];
-				if (complex[1]) {
-					pinData["class"] += " alt";
-				}
-				if (complex[3]) {
-					pinData.scopeNum = complex[3];
-				}
-			}
+	if (this.boardData instanceof FritzingFzpz) {
+		brdData = this.boardData.meta.connectors;
+	}
 
-			if (exclude[pinData["class"]]) {
-				return;
-			}
-
-			fnList.push (pinData);
-		});
-
-		if (brdData[connectorId].flags) {
-			if (brdData[connectorId].flags["5v"]) {
-				fnList.push ({"class": "5v flag", title: "➄", flag: true});
-			}
-			if (brdData[connectorId].flags.touch) {
-				fnList.push ({"class": "touch flag", title: "☟", flag: true});
-			}
-		}
-
-		//				console.log (fn, fnList);
-
-		this.drawLabels (connectorId, fnList, brdData[connectorId].flags);
+	//	this.pinoutSVGDoc = this.pinoutElement
+	[].slice.apply (svgDoc.querySelectorAll ('g.cuwire-pin')).forEach (function (node) {
+		node.parentNode.removeChild (node);
 	});
+
+	console.log (brdData);
+
+	this.getPinRowsOrientation ();
+
+	this.center = nodeCentralPoint (svgRoot);
+
+	var pinoutNode = svgDoc.querySelector ('g.pinout');
+	if (!pinoutNode) {
+		pinoutNode = this.createSVGNode ('g', {'class': 'pinout'});
+		svgRoot.appendChild (pinoutNode);
+	}
+
+	this.pinoutNode = pinoutNode;
+
+	var defs = svgDoc.querySelector ('defs');
+	if (!defs) {
+		defs = this.createSVGNode ("defs");
+		svgRoot.insertBefore (defs, svgRoot.firstElementChild);
+	}
+
+	Object.keys (brdData).forEach ((connectorId) => {
+
+		var pinData = brdData[connectorId];
+		if (!(pinData.fn instanceof Array)) {
+			pinData = convertJsonMeta (connectorId, pinData);
+		}
+
+		// console.log (fn, fnList);
+
+		this.drawPin (connectorId, pinData);
+	});
+
+	svgDoc.documentElement.setAttribute ("preserveAspectRatio", "xMinYMid meet");
+
+	showWholeSVG (svgDoc);
 
 	this.updateSvgLink ();
 	this.updatePngLink ();
+
 }
 
-CuwirePinout.prototype.drawLabels = function (connectorId, labels, flags) {
+CuwirePinout.prototype.drawPin = function (connectorId, pinData) {
 
 	var svgDoc = this.pinoutSVGDoc;
 
-	var connectorNode = svgDoc.querySelector ('[id^='+connectorId+']');
+	console.log (pinData);
+
+	var connectorNode = pinData.svgId
+		? svgDoc.querySelector ('#'+pinData.svgId)
+		: svgDoc.querySelector ('[id^='+connectorId+']');
 
 	if (!connectorNode)
 		return;
-
-	if (labels.constructor !== Array) {
-		labels = [labels];
-	}
-
-	flags = flags || {};
 
 	var labelOffset;
 	var labelMinX = 0;
@@ -552,90 +545,114 @@ CuwirePinout.prototype.drawLabels = function (connectorId, labels, flags) {
 
 	this.pinoutNode.appendChild (g);
 
-	labels.forEach (function (labelMeta) {
-		labelMeta = Object.create (labelMeta);
-		if (labelOffset) {
-			labelMeta.x = labelOffset.x;
-			labelMeta.y = labelOffset.y;
-		} else {
-			labelMeta.x = 0; // pinX;
-			labelMeta.y = 0; // pinY;
-			labelMeta.begin = true;
-			if (flags.pwm) {
-				labelMeta.pwm = true;
-			}
-		}
+	var labelOffset = this.wireForPin (g, side, pinData, coords);
 
-		labelOffset = this.labelForPin (g, side, labelMeta);
+	pinData.fn.forEach ((labelData) => {
 
-		//		var pnt = svgDoc.documentElement.createSVGPoint();
-		//		pnt.x = labelOffset.x;
-		//		pnt.y = labelOffset.y;
-		//
-		//
-		//		var SCTM = labelOffset.sctm;
-		//		var iPNT = pnt.matrixTransform (SCTM); //SCTM.inverse()
-		//
-		//		console.log ('&&&&&&&', iPNT.x, iPNT.y);
-		//
-		//		if (side === 'right' && iPNT.x > labelMaxX) {
-		//			labelMaxX = iPNT.x;
-		//		}
-		//		if (side !== 'right' && iPNT.x < labelMinX) {
-		//			labelMinX = iPNT.x;
-		//		}
-	}.bind(this));
+		labelOffset = this.labelForPin (g, side, labelData, labelOffset);
 
-	// TODO: get actual adjustment to viewBox
-
-	svgDoc.documentElement.setAttribute ("preserveAspectRatio", "xMinYMid meet");
-
-	//	var viewBox = svgDoc.documentElement.getAttribute ('viewBox').split (' ');
-	//
-	//	console.log ('labelminx:', labelMinX, fontSize, pitch);
-	//	labelMinX = (Math.min (parseFloat (viewBox[0]), labelMinX - fontSize));
-	//	labelMaxX = (Math.max (parseFloat (viewBox[2]), labelMaxX - fontSize));
-	//
-	//	svgDoc.documentElement.setAttribute (
-	//		'viewBox',
-	//		[labelMinX, viewBox[1], labelMaxX, viewBox[3]].join (' ')
-	//	);
-	//	svgDoc.documentElement.setAttribute (
-	//		'width',
-	//		labelMaxX - labelMinX + pitch
-	//	);
-
-	var svgBBox = svgDoc.documentElement.getBBox();
-	svgDoc.documentElement.setAttribute (
-		'viewBox',
-		[svgBBox.x, svgBBox.y, svgBBox.x + svgBBox.width, svgBBox.y + svgBBox.height].join (' ')
-	);
-
-	svgDoc.documentElement.setAttribute (
-		'width',
-		svgBBox.width
-	);
-
-	svgDoc.documentElement.setAttribute (
-		'height',
-		svgBBox.height
-	);
+	});
 
 }
 
-CuwirePinout.prototype.labelForPin = function (containerGroup, side, labelMeta) {
+CuwirePinout.prototype.wireForPin = function (g, side, pinData, coords) {
+
+	var svgDoc = this.pinoutSVGDoc;
+
+	// console.log (pinData, this.rotated);
+
+	var lineRect;
+
+	var xOffset = Math.abs (coords.x - this.center[side === 'left' ? 'x1' : 'x2']);
+	// var yOffset = coords.x - this.center[side === 'left' ? 'x1' : 'x2'];
+
+	lineRect = {
+		x1: (side === 'left' ? -1 : 1)*(xOffset),
+		y1: 0,
+		x2: (side === 'left' ? -1 : 1)*(this.fontSize + xOffset),
+		y2: 0
+	}
+
+	//console.log (pinData, lineRect);
+
+	// TODO: remove stroke width from line x
+	if (pinData.fn.some (label => label.group === 'dac')) {
+		var path = this.createSVGNode ("path", {
+			d: [
+				"M"+[0, 0].join (','),
+				"l"+[lineRect.x1, lineRect.y1].join (','),
+				"l"+[(lineRect.x2-lineRect.x1)/8, 0].join (','),
+				"C"+[lineRect.x1 + (lineRect.x2-lineRect.x1)/2, lineRect.y2 - Math.abs (this.fontSize)].join (','),
+				[lineRect.x1 + (lineRect.x2-lineRect.x1)/2, lineRect.y2 + Math.abs (this.fontSize)].join (','),
+				[lineRect.x2 - (lineRect.x2-lineRect.x1)/8, lineRect.y2].join (','),
+				"l"+[(lineRect.x2-lineRect.x1)/8, 0].join (','),
+			].join (' '),
+			"stroke-width": this.fontSize/8,
+		});
+
+		g.appendChild (path);
+	} else if (pinData.fn.some (label => label.group === 'pwm')) {
+		var path = this.createSVGNode ("path", {
+			d: [
+				"M"+[0, 0].join (','),
+				"l"+[lineRect.x1, lineRect.y1].join (','),
+				"l"+[(lineRect.x2-lineRect.x1)/4, 0].join (','),
+				"l"+[0, this.fontSize/4].join (','),
+				"l"+[(lineRect.x2-lineRect.x1)/4, 0].join (','),
+				"l"+[0, -this.fontSize/2].join (','),
+				"l"+[(lineRect.x2-lineRect.x1)/4, 0].join (','),
+				"l"+[0, this.fontSize/4].join (','),
+				"l"+[(lineRect.x2-lineRect.x1)/4, 0].join (','),
+				/*"C"+[lineRect.x1 + (lineRect.x2-lineRect.x1)/2, lineRect.y2 - Math.abs (labelTextOffset/2)].join (','),
+				[lineRect.x1 + (lineRect.x2-lineRect.x1)/2, lineRect.y2 + Math.abs (labelTextOffset/2)].join (','),
+				[lineRect.x2-(lineRect.x2-lineRect.x1)/4, lineRect.y2].join (','),
+				*/
+				//"l"+[(lineRect.x2-lineRect.x1)/2, 0].join (','),
+			].join (' '),
+			"stroke-width": this.fontSize/8,
+		});
+
+		g.appendChild (path);
+	} else {
+		var line = this.createSVGNode ("line", {
+			x1: 0,
+			x2: lineRect.x2,
+			y1: lineRect.y1,
+			y2: lineRect.y2,
+			"stroke-width": this.fontSize/8,
+		});
+
+		g.appendChild (line);
+	}
+
+	return {
+		x: lineRect.x2,
+		y: 0
+	}
+}
+
+CuwirePinout.prototype.labelForPin = function (containerGroup, side, labelMeta, coords) {
 
 	var svgDoc = this.pinoutSVGDoc;
 
 	// var pinSelector = arguments.shift();
 
-	var labelTitle = labelMeta.title;
+	var labelTitle = labelMeta.name;
 
-	var pinX = labelMeta.x;
-	var pinY = labelMeta.y;
+	if (!labelTitle || labelMeta.hidden)
+		return coords;
+
+	var pinX = coords.x;
+	var pinY = coords.y;
+
+	var className = [
+		labelMeta.group,
+		labelMeta.groupNum ? labelMeta.group + '-' + labelMeta.groupNum : null,
+		labelMeta.alt ? 'alt' : null,
+	].filter (a => a).join (' ')
 
 	var g = this.createSVGNode ("g", {
-		class: 'cuwire-pin '+labelMeta.class,
+		class: 'cuwire-pin ' + className,
 		//		transform: "rotate("+(rotated ? -90 : 0)+" "+pinX+" "+pinY+")",
 		// x: pinX+10,
 		// y: pinY,
@@ -645,7 +662,7 @@ CuwirePinout.prototype.labelForPin = function (containerGroup, side, labelMeta) 
 
 	containerGroup.appendChild(g);
 
-	var labelTextOffset = (side === 'right' ? 1 : -1) * this.fontSize * (labelMeta.begin ? 2 : 1);
+	var labelTextOffset = (side === 'right' ? 1 : -1) * this.fontSize;
 
 	var text = this.createSVGNode ("text", {
 		x: pinX + labelTextOffset,
@@ -664,8 +681,8 @@ CuwirePinout.prototype.labelForPin = function (containerGroup, side, labelMeta) 
 	var ctm  = text.getCTM();
 	var sctm = text.getScreenCTM();
 
-	if (labelMeta.fn) {
-		if (labelMeta.scopeNum) {
+	if (labelMeta.group && labelMeta.group.length <= 4) {
+		if (labelMeta.groupNum) {
 		var scopeIdText = this.createSVGNode ("text", {
 			x: pinX + labelTextOffset + this.fontSize/10 + (side === 'right' ? 0 : -1) * bbox.width,
 			y: pinY,
@@ -675,7 +692,7 @@ CuwirePinout.prototype.labelForPin = function (containerGroup, side, labelMeta) 
 			"text-anchor": 'start', //side === 'right' ? "start" : 'end'
 		});
 
-		scopeIdText.textContent = labelMeta.scopeNum;
+			scopeIdText.textContent = labelMeta.groupNum;
 
 		g.appendChild (scopeIdText);
 		}
@@ -685,7 +702,8 @@ CuwirePinout.prototype.labelForPin = function (containerGroup, side, labelMeta) 
 		var scopeNameText = this.createSVGNode ("text", {
 			x: x,
 			y: y,
-			"font-size": this.fontSize / 2,
+			class: "group",
+			"font-size": this.fontSize * .4,
 			"font-weight": "bold",
 			// fill: "white",
 			"dominant-baseline": "central",
@@ -693,10 +711,11 @@ CuwirePinout.prototype.labelForPin = function (containerGroup, side, labelMeta) 
 			transform: "rotate(-90, " + x + ", " + y + ")",
 		});
 
-		scopeNameText.textContent = labelMeta.fn;
+		scopeNameText.textContent = labelMeta.group;
 
 		g.appendChild (scopeNameText);
 
+		text.setAttribute ("x", parseFloat(text.getAttribute("x")) + this.fontSize/2.5);
 	}
 
 	// connectorNode.parentElement.insertBefore (text, connectorNode.nextSibling);
@@ -712,55 +731,6 @@ CuwirePinout.prototype.labelForPin = function (containerGroup, side, labelMeta) 
 		y2: pinY,
 	};
 
-	// TODO: remove stroke width from line x
-	if (labelMeta.begin && labelMeta.pwm) {
-		var path = this.createSVGNode ("path", {
-			d: [
-				"M"+[lineRect.x1, lineRect.y1].join (','),
-				"l"+[(lineRect.x2-lineRect.x1)/8, 0].join (','),
-				"l"+[0, this.fontSize/4].join (','),
-				"l"+[(lineRect.x2-lineRect.x1)/8, 0].join (','),
-				"l"+[0, -this.fontSize/2].join (','),
-				"l"+[(lineRect.x2-lineRect.x1)/8, 0].join (','),
-				"l"+[0, this.fontSize/4].join (','),
-				"l"+[(lineRect.x2-lineRect.x1)/8, 0].join (','),
-				/*"C"+[lineRect.x1 + (lineRect.x2-lineRect.x1)/2, lineRect.y2 - Math.abs (labelTextOffset/2)].join (','),
-				[lineRect.x1 + (lineRect.x2-lineRect.x1)/2, lineRect.y2 + Math.abs (labelTextOffset/2)].join (','),
-				[lineRect.x2-(lineRect.x2-lineRect.x1)/4, lineRect.y2].join (','),
-				*/
-				"l"+[(lineRect.x2-lineRect.x1)/2, 0].join (','),
-			].join (' '),
-			"stroke-width": this.fontSize/8,
-		});
-
-		g.insertBefore (path, rect);
-	} else if (labelMeta.begin && labelMeta.dac) {
-		var path = this.createSVGNode ("path", {
-			d: [
-				"M"+[lineRect.x1, lineRect.y1].join (','),
-				"l"+[(lineRect.x2-lineRect.x1)/8, 0].join (','),
-				"C"+[lineRect.x1 + (lineRect.x2-lineRect.x1)*3/8, lineRect.y2 - Math.abs (labelTextOffset/2)].join (','),
-				[lineRect.x1 + (lineRect.x2-lineRect.x1)/4, lineRect.y2 + Math.abs (labelTextOffset/2)].join (','),
-				[lineRect.x2-(lineRect.x2-lineRect.x1)/2, lineRect.y2].join (','),
-				"l"+[(lineRect.x2-lineRect.x1)/2, 0].join (','),
-			].join (' '),
-			"stroke-width": this.fontSize/8,
-		});
-
-		g.insertBefore (path, rect);
-	} else if (!labelMeta.flag) {
-		var line = this.createSVGNode ("line", {
-			x1: lineRect.x1,
-			x2: lineRect.x2,
-			y1: lineRect.y1,
-			y2: lineRect.y2,
-			"stroke-width": this.fontSize/8,
-		});
-
-		g.insertBefore (line, rect);
-	}
-
-
 	var rect = this.createSVGNode ("rect", {
 		x: bbox.x - this.fontSize / 2,
 		y: bbox.y,
@@ -773,8 +743,18 @@ CuwirePinout.prototype.labelForPin = function (containerGroup, side, labelMeta) 
 
 	// stroke="black" stroke-width="20" stroke-linecap="round"/>
 
-	if (!labelMeta.flag)
-		g.insertBefore (rect, text);
+	g.insertBefore (rect, text);
+
+	var line = this.createSVGNode ("line", {
+		x1: lineRect.x1,
+		x2: lineRect.x2,
+		y1: lineRect.y1,
+		y2: lineRect.y2,
+		"stroke-width": this.fontSize/8,
+	});
+
+	g.insertBefore (line, text);
+
 	// connectorNode.parentElement.insertBefore (rect, c25.nextSibling);
 
 	// c25.parentElement.insertBefore (line, c25.nextSibling);
@@ -785,10 +765,10 @@ CuwirePinout.prototype.labelForPin = function (containerGroup, side, labelMeta) 
 
 	// c25.parentElement.insertBefore (path, c25.nextSibling);
 
-	if (labelMeta.scopeNum) {
-		text.setAttribute ("x", parseFloat(text.getAttribute("x")) + this.fontSize/2.5);
-		var textOffset = this.fontSize * 1;
-	}
+	// if (labelMeta.group) {
+
+		// var textOffset = this.fontSize * 1;
+	// }
 
 	return {
 		x: bbox.x + (side === 'right' ? bbox.width + this.fontSize / 2 : - this.fontSize / 2) ,
