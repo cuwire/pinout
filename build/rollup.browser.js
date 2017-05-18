@@ -22,10 +22,10 @@ export default {
 		commonjs()
 		*/
 		scss({
-			output: 'dist/boards.css'
+			output: 'dist/pinout.css'
 		})
 	],
-	dest: 'dist/boards.js',
+	dest: 'dist/pinout.js',
 	external: [
 		'xmldom',
 		'jszip',
