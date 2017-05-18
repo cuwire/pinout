@@ -684,12 +684,12 @@ CuwirePinout.prototype.labelForPin = function (containerGroup, side, labelMeta, 
 	if (labelMeta.group && labelMeta.group.length <= 4) {
 		if (labelMeta.groupNum) {
 		var scopeIdText = this.createSVGNode ("text", {
-			x: pinX + labelTextOffset + this.fontSize/10 + (side === 'right' ? 0 : -1) * bbox.width,
+			x: pinX + labelTextOffset + this.fontSize/5 + (side === 'right' ? 0 : -1) * bbox.width,
 			y: pinY,
 			"font-size": this.fontSize / 2,
 			// fill: "white",
 			"dominant-baseline": "hanging",
-			"text-anchor": 'start', //side === 'right' ? "start" : 'end'
+			"text-anchor": 'middle', //side === 'right' ? "start" : 'end'
 		});
 
 			scopeIdText.textContent = labelMeta.groupNum;
@@ -726,7 +726,7 @@ CuwirePinout.prototype.labelForPin = function (containerGroup, side, labelMeta, 
 
 	var lineRect = {
 		x1: bbox.x + (side === 'right' ? - this.fontSize /2 : bbox.width + this.fontSize /2),
-		y1: bbox.y + bbox.height / 2,
+		y1: pinY,
 		x2: pinX,
 		y2: pinY,
 	};
