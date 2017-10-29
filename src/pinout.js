@@ -150,8 +150,16 @@ CuwirePinout.prototype.changeBoard = function (boardId) {
 
 
 	} else {
-		this.setViewData (this.baseUrl + this.boardId + '.svg');
-		this.boardData = null;
+		
+		return this.fetchJsonLabels ().then (boardData => {
+			this.setViewData (this.baseUrl + this.boardId + '.svg');
+
+			this.boardData = boardData;
+
+			return boardData;
+		}, err => {
+			console.error (err);
+		});
 	}
 }
 
@@ -290,8 +298,10 @@ CuwirePinout.prototype.initSVGDoc = function () {
 
 	if (this.boardData)
 		this.drawLabels ({});
+	/*
 	else
 		this.fetchJsonLabels ({});
+	*/
 }
 
 var svgNS = "http://www.w3.org/2000/svg";
@@ -307,20 +317,31 @@ CuwirePinout.prototype.createSVGNode = function (nodeName, attrs) {
 
 CuwirePinout.prototype.fetchJsonLabels = function (exclude = {}) {
 
-	// TODO: get names from: https://github.com/fritzing/fritzing-parts/blob/master/core/Arduino-Pro-Mini-v13-a4%2B5.fzp
+	return new Promise ((resolve, reject) => {
+	
+		// TODO: cache data
+		var req = new XMLHttpRequest ();
+		req.open('GET', this.baseUrl + this.boardId + '.json', true);
+		req.addEventListener ('load', function() {
+			if ((req.status === 0 && req.responseText) || req.status == 200) {
+				try {
+					resolve (JSON.parse (req.responseText));
+				} catch (err) {
+					reject (err);
+				}
+				// this.boardData = JSON.parse (req.responseText);
 
-	// TODO: cache data
-	var req = new XMLHttpRequest ();
-	req.open('GET', this.baseUrl + this.boardId + '.json', true);
-	req.addEventListener ('load', function() {
-		if ((req.status === 0 && req.responseText) || req.status == 200) {
-			this.boardData = JSON.parse (req.responseText);
+				// this.drawLabels (exclude);
+			} else {
+				reject (new Error (`HTTP status ${req.status}`));
+			}
 
-			this.drawLabels (exclude);
-		}
-
-	}.bind(this));
-	req.send(null);
+		}.bind(this));
+		
+		req.addEventListener ('error', err => reject (err));
+		
+		req.send(null);
+	});
 
 }
 
