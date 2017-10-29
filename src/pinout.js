@@ -136,7 +136,7 @@ CuwirePinout.prototype.changeBoard = function (boardId) {
 
 	// TODO: move to boardChange function
 	this.pinoutElement.style.visibility = null;
-	if (boardId.match (/^https?\:\/\/.*fzpz(?:$|\?)/)) {
+	if (boardId.match (/.*fzpz(?:$|\?)/)) {
 		console.log ('fzpz');
 		return FritzingFzpz.loadFromUrl (githubCORSUrl (boardId)).then (fzpz => {
 			this.setViewData (boardId, fzpz.files.breadboard.contents);
@@ -496,7 +496,7 @@ CuwirePinout.prototype.drawLabels = function (exclude = {}) {
 		svgRoot.insertBefore (defs, svgRoot.firstElementChild);
 	}
 
-	Object.keys (brdData).forEach ((connectorId) => {
+	Object.keys (brdData).filter (connectorId => connectorId !== 'cuwire').forEach ((connectorId) => {
 
 		// console.log (brdData[connectorId]);
 

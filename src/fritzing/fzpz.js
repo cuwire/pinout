@@ -90,7 +90,7 @@ export default class FritzingFzpz {
 	static loadFromUrl (url, cb) {
 
 		if (!cb)
-			return promisify (FritzingFzpz.loadFromUrl.bind (FritzingFzpz, url));
+			return promisify (FritzingFzpz.loadFromUrl, FritzingFzpz)(url);
 
 		JSZipUtils.getBinaryContent (url, function (err, data) {
 			if (err) {

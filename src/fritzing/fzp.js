@@ -87,7 +87,7 @@ export default class FritzingFzp {
 			if (!signalNodes || !signalNodes.length) {
 				fzpData.connectors[connectorId] = {
 					fn: [{
-						group: 'name',
+						group: 'pin',
 						name: node.getAttribute ('name')
 					}],
 					svgId: svgId,
