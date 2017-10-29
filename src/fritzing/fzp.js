@@ -79,7 +79,7 @@ export default class FritzingFzp {
 
 			var breadboardView = node.getElementsByTagName ('breadboardView')[0];
 			// this should be defined
-			var svgId = breadboardView.firstElementChild.getAttribute ('svgId');
+			var svgId = breadboardView.getElementsByTagName ('*')[0].getAttribute ('svgId');
 
 			var connectorId   = node.getAttribute ('id');
 			var signalNodes = node.getElementsByTagName ('signal');
