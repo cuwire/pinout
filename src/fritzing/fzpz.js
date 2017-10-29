@@ -3,6 +3,8 @@ import Fzp from './fzp';
 
 import {promisify} from '../common';
 
+import FS from 'fs';
+
 export default class FritzingFzpz {
 
 	constructor (data) {
@@ -105,19 +107,16 @@ export default class FritzingFzpz {
 	static readFromFile (filename, cb) {
 
 		if (!cb)
-			return promisify (FritzingFzpz.readFromFile.bind (FritzingFzpz, filename));
+			return promisify (FritzingFzpz.readFromFile, FritzingFzpz)(filename);
 
-		var fs = require ('fs');
-
-		fs.readFile (filename, function (err, data) {
-			if(err) {
-				throw err; // TODO: handle err
-			}
-
+		return promisify (FS.readFile, FS)(filename).then (function (data) {
 			// TODO: catch error
 			return JSZip.loadAsync (data).then (function (archiveData) {
 				return FritzingFzpz.handleFiles (filename, archiveData, cb);
 			});
+		}, function (err) {
+			return Promise.reject (err);
 		});
 	}
 }
+
