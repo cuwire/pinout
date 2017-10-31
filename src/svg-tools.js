@@ -1,3 +1,7 @@
+import svgdom from 'svgdom';
+
+import {DOMParser, DOMImplementation} from 'xmldom';
+
 export function nodeCentralPoint (node) {
 	if (!node) console.trace (node);
 	var bbox = node.getBBox();
@@ -119,3 +123,85 @@ export function showWholeSVG (svgDoc) {
 	);
 
 }
+
+export function convertDOM (srcDoc) {
+	
+	// for browser svgdom.DOMParser === xmldom.DOMParser
+	if (svgdom.DOMParser && svgdom.DOMParser === DOMParser) {
+		return srcDoc;
+	}
+	
+	var xmldomDoc = new DOMImplementation ().createDocument (
+		'http://www.w3.org/2000/svg', 'svg'
+	);
+	
+	var svgdomDoc = new svgdom.constructor ().document;
+	
+	var dstDoc;
+	
+	if (srcDoc instanceof xmldomDoc.constructor) {
+		dstDoc = svgdomDoc;
+		console.log ('xmldom => svgdom');
+	} else {
+		dstDoc = xmldomDoc;
+		console.log ('svgdom => xmldom');
+	}
+	
+	var srcNode = srcDoc.documentElement;
+
+	var dstNode = dstDoc.documentElement;
+
+	fitNode (srcNode, dstNode);
+
+	function fitNode (srcNode, dstNode, depth = 0) {
+
+		// TODO: namespaces
+		var attrs;
+		if (srcNode.attrs) {
+			srcNode.attrs.forEach ((v, k) => {
+				// TODO: use ns
+				dstNode.setAttributeNS (null, k, v);
+			});
+		} else if (srcNode.attributes) {
+			attrs = srcNode.attributes;
+			for (let i = 0; i < attrs.length; i++) {
+				let attr = attrs.item(i);
+				// null ns arg should be fine
+				dstNode.setAttributeNS (
+					attr.namespaceURI,
+					(attr.prefix ? attr.prefix + ':' : '') + attr.localName,
+					attr.value
+				);
+			}
+		}
+
+		var child = srcNode.firstChild;
+		while (child) {
+			// TODO: createElementNS
+
+			// console.log ('============\n', depth, child.nodeType, Object.keys (child));
+
+			if (child.nodeType === 3) { // Node.TEXT_NODE
+				dstNode.appendChild (dstDoc.createTextNode (child.data));
+			} else if (child.nodeType === 8) { // Node.COMMENT_NODE
+				console.log ('COMMENT NODE', child);
+				dstNode.appendChild (dstDoc.createComment (child.data));
+			} else if (child.nodeType === 1) { // Node.ELEMENT_NODE
+				// TODO: namespace
+				let dstChildNode = dstDoc.createElement (child.localName || child.nodeName);
+				dstNode.appendChild (dstChildNode);
+				fitNode (child, dstChildNode, depth + 1);	
+			} else {
+				console.info ('NodeType ===' + child.nodeType + ' not supported');
+			}
+
+			child = child.nextSibling;
+		}
+
+	}
+
+	return dstDoc;
+
+	
+}
+
