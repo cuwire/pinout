@@ -159,28 +159,21 @@ export function convertDOM (srcDoc) {
 		var attrs;
 		if (srcNode.attrs) {
 			var namespaces = {};
-			srcNode.attrs.forEach ((v, k) => {
-				if (k === 'xmlns') {
-					dstNode.setAttributeNS (null, k, v);
-				} else if (k.match (/^xmlns:/)) {
-					namespaces[k.replace (/^xmlns(?:\:|$)/, '')] = v;
-					dstNode.setAttributeNS ("http://www.w3.org/2000/xmlns/", k, v);
-				} else {
-					return;
-				}
-			});
-			srcNode.attrs.forEach ((v, k) => {
-				if (k.match (/:/)) {
-					if (k.match (/^xmlns:/)) {
-						return;
-					}
+			[...srcNode.attrs.keys()].sort (
+				(a, b) => b.indexOf ('xmlns:') - a.indexOf ('xmlns:')
+			).forEach (k => {
+				var kChunks = k.split (':');
+				if (kChunks[0] === 'xmlns' && kChunks.length === 2) {
+					namespaces[kChunks[1]] = srcNode.attrs.get (k);
+					dstNode.setAttributeNS ("http://www.w3.org/2000/xmlns/", k, srcNode.attrs.get (k));
+				} else if (kChunks.length === 2) {
 					dstNode.setAttributeNS (
-						namespaces[k.match (/^([^\:]+)\:/)[1]],
+						namespaces[kChunks[0]],
 						k,
-						v
+						srcNode.attrs.get (k)
 					);
 				} else {
-					dstNode.setAttributeNS (null, k, v);
+					dstNode.setAttributeNS (null, k, srcNode.attrs.get (k));
 				}
 			});
 		} else if (srcNode.attributes) {
