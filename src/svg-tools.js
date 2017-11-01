@@ -158,9 +158,30 @@ export function convertDOM (srcDoc) {
 		// TODO: namespaces
 		var attrs;
 		if (srcNode.attrs) {
+			var namespaces = {};
 			srcNode.attrs.forEach ((v, k) => {
-				// TODO: use ns
-				dstNode.setAttributeNS (null, k, v);
+				if (k === 'xmlns') {
+					dstNode.setAttributeNS (null, k, v);
+				} else if (k.match (/^xmlns:/)) {
+					namespaces[k.replace (/^xmlns(?:\:|$)/, '')] = v;
+					dstNode.setAttributeNS ("http://www.w3.org/2000/xmlns/", k, v);
+				} else {
+					return;
+				}
+			});
+			srcNode.attrs.forEach ((v, k) => {
+				if (k.match (/:/)) {
+					if (k.match (/^xmlns:/)) {
+						return;
+					}
+					dstNode.setAttributeNS (
+						namespaces[k.match (/^([^\:]+)\:/)[1]],
+						k,
+						v
+					);
+				} else {
+					dstNode.setAttributeNS (null, k, v);
+				}
 			});
 		} else if (srcNode.attributes) {
 			attrs = srcNode.attributes;
