@@ -1,6 +1,8 @@
 import svgdom from 'svgdom';
 
-import {DOMParser, DOMImplementation} from 'xmldom';
+import {DOMParser, DOMImplementation, XMLSerializer} from 'xmldom';
+
+export const NS = "http://www.w3.org/2000/svg";
 
 export function nodeCentralPoint (node) {
 	if (!node) console.trace (node);
@@ -141,43 +143,46 @@ export function convertDOM (srcDoc) {
 	
 	if (srcDoc instanceof xmldomDoc.constructor) {
 		dstDoc = svgdomDoc;
-		console.log ('xmldom => svgdom');
+		// console.log ('xmldom => svgdom');
 	} else {
 		dstDoc = xmldomDoc;
-		console.log ('svgdom => xmldom');
+		// console.log ('svgdom => xmldom');
 	}
 	
 	var srcNode = srcDoc.documentElement;
 
 	var dstNode = dstDoc.documentElement;
 
+	var namespaces = {
+		xml: 'http://www.w3.org/XML/1998/namespace'
+	};
+
 	fitNode (srcNode, dstNode);
 
 	function fitNode (srcNode, dstNode, depth = 0) {
 
-		// TODO: namespaces
-		var attrs;
 		if (srcNode.attrs) {
-			var namespaces = {};
-			[...srcNode.attrs.keys()].sort (
-				(a, b) => b.indexOf ('xmlns:') - a.indexOf ('xmlns:')
+
+			srcNode.attributes.sort (
+				(a, b) => b.nodeName.indexOf ('xmlns:') - a.nodeName.indexOf ('xmlns:')
 			).forEach (k => {
-				var kChunks = k.split (':');
+				var attrName = k.nodeName;
+				var kChunks = attrName.split (':');
 				if (kChunks[0] === 'xmlns' && kChunks.length === 2) {
-					namespaces[kChunks[1]] = srcNode.attrs.get (k);
-					dstNode.setAttributeNS ("http://www.w3.org/2000/xmlns/", k, srcNode.attrs.get (k));
+					namespaces[kChunks[1]] = srcNode.getAttribute (attrName);
+					dstNode.setAttributeNS ("http://www.w3.org/2000/xmlns/", attrName, srcNode.getAttribute (attrName));
 				} else if (kChunks.length === 2) {
 					dstNode.setAttributeNS (
 						namespaces[kChunks[0]],
-						k,
-						srcNode.attrs.get (k)
+						attrName,
+						srcNode.getAttribute (attrName)
 					);
 				} else {
-					dstNode.setAttributeNS (null, k, srcNode.attrs.get (k));
+					dstNode.setAttributeNS (null, attrName, srcNode.getAttribute (attrName));
 				}
 			});
 		} else if (srcNode.attributes) {
-			attrs = srcNode.attributes;
+			var attrs = srcNode.attributes;
 			for (let i = 0; i < attrs.length; i++) {
 				let attr = attrs.item(i);
 				// null ns arg should be fine
@@ -198,13 +203,13 @@ export function convertDOM (srcDoc) {
 			if (child.nodeType === 3) { // Node.TEXT_NODE
 				dstNode.appendChild (dstDoc.createTextNode (child.data));
 			} else if (child.nodeType === 8) { // Node.COMMENT_NODE
-				console.log ('COMMENT NODE', child);
+				// console.log ('COMMENT NODE', child);
 				dstNode.appendChild (dstDoc.createComment (child.data));
 			} else if (child.nodeType === 1) { // Node.ELEMENT_NODE
 				// TODO: namespace
-				let dstChildNode = dstDoc.createElement (child.localName || child.nodeName);
+				let dstChildNode = dstDoc.createElement (child.nodeName);
 				dstNode.appendChild (dstChildNode);
-				fitNode (child, dstChildNode, depth + 1);	
+				fitNode (child, dstChildNode, depth + 1);
 			} else {
 				console.info ('NodeType ===' + child.nodeType + ' not supported');
 			}
