@@ -51,9 +51,11 @@ export function svgToBlob (svg, options = {}) {
 
 }
 
-export function viewportConvert (el) {
+export function viewportConvert (el, rotatedContainer) {
 
-	var point = el.ownerSVGElement.createSVGPoint();
+	var matrix = (rotatedContainer || el.ownerSVGElement).getScreenCTM().inverse().multiply(el.getScreenCTM());
+
+	var point = (rotatedContainer || el.ownerSVGElement).createSVGPoint();
 
 	var bbox = el.getBBox(),
 		x = bbox.x + (bbox.width / 2),
@@ -62,9 +64,8 @@ export function viewportConvert (el) {
 	point.x = x;
 	point.y = y;
 
-	var matrix = el.ownerSVGElement.getScreenCTM().inverse().multiply(el.getScreenCTM());
-
 	var position = point.matrixTransform(matrix);
+	// var position = point.matrixTransform(el.getCTM().inverse());
 
 	return {
 		x: position.x,
@@ -127,20 +128,20 @@ export function showWholeSVG (svgDoc) {
 }
 
 export function convertDOM (srcDoc) {
-	
+
 	// for browser svgdom.DOMParser === xmldom.DOMParser
 	if (svgdom.DOMParser && svgdom.DOMParser === DOMParser) {
 		return srcDoc;
 	}
-	
+
 	var xmldomDoc = new DOMImplementation ().createDocument (
 		'http://www.w3.org/2000/svg', 'svg'
 	);
-	
+
 	var svgdomDoc = new svgdom.constructor ().document;
-	
+
 	var dstDoc;
-	
+
 	if (srcDoc instanceof xmldomDoc.constructor) {
 		dstDoc = svgdomDoc;
 		// console.log ('xmldom => svgdom');
@@ -148,7 +149,7 @@ export function convertDOM (srcDoc) {
 		dstDoc = xmldomDoc;
 		// console.log ('svgdom => xmldom');
 	}
-	
+
 	var srcNode = srcDoc.documentElement;
 
 	var dstNode = dstDoc.documentElement;
@@ -221,6 +222,12 @@ export function convertDOM (srcDoc) {
 
 	return dstDoc;
 
-	
+
 }
 
+export function elementDepth (el, count = 0) {
+	if (!el.parentNode) {
+		return count;
+	}
+	return elementDepth (el.parentNode, count + 1);
+}

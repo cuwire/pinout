@@ -11,6 +11,14 @@ export default class FritzingFzpz {
 		Object.assign (this, data);
 	}
 
+	get pins () {
+		return this.meta.connectors;
+	}
+
+	get svgString () {
+		return this.files.breadboard.contents;
+	}
+	
 	static handleFiles (url, archiveData, cb) {
 
 		// console.info (Object.keys (archiveData.files));
