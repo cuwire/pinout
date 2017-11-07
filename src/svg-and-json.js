@@ -25,6 +25,7 @@ export default class SVGAndJSON {
 
 		// svgString = new DOMParser().parseFromString (fileData.breadboard, 'text/xml');
 		var svgString = options.breadboardSvg;
+		var svgUrl = options.svgUrl;
 		var connectors;
 
 		try {
@@ -40,6 +41,7 @@ export default class SVGAndJSON {
 
 		var svgPinout = new SVGAndJSON ({
 			url,
+			svgUrl,
 			meta:  {
 				connectors: connectors
 			},
@@ -52,7 +54,7 @@ export default class SVGAndJSON {
 		return svgPinout;
 	}
 
-	static async loadFromUrl (url) {
+	static loadFromUrl (url) {
 
 		// we don't need to download svg in the browser.
 		// browser will do it itself when we set `<object @data>`
@@ -71,25 +73,26 @@ export default class SVGAndJSON {
 
 		var req = new Request (jsonUrl);
 
-		var res = await fetch (req, init);
+		return fetch (req, init).then (res => {
+			var body;
+			var contentType = res.headers.get("content-type");
+			//if (contentType && contentType.includes("application/json")) {
+			//	body = await res.json();
+			//} else {
+			return res.text();
+			//}
 
-		var body;
-		var contentType = res.headers.get("content-type");
-		//if (contentType && contentType.includes("application/json")) {
-		//	body = await res.json();
-		//} else {
-			body = await res.text();
-		//}
+		}).then (body => {
 
-		var result = {
-			svgUrl: url,
-			jsonUrl,
-			breadboardSvg: null,
-			metaJSON: body
-		};
+			var result = {
+				svgUrl: url,
+				jsonUrl,
+				breadboardSvg: null,
+				metaJSON: body
+			};
 
-		return SVGAndJSON.handleFiles (url, result);
-
+			return SVGAndJSON.handleFiles (url, result);
+		});
 	}
 
 	static async readFromFile (filename) {

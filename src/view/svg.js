@@ -5,9 +5,10 @@ import {DOMParser, XMLSerializer} from 'xmldom';
 import {
 	convertDOM,
 	NS,
+	svgToBlob,
 	nodeCentralPoint,
 	viewportConvert,
-	createSVGPoint,
+	// createSVGPoint,
 	showWholeSVG,
 	elementDepth
 } from '../svg-tools'
@@ -93,7 +94,23 @@ export default class SVGView {
 	}
 
 	renderTo (selector) {
-		// apply
+		var svgUrl = this.svgUrl;
+		if (this.svgString) {
+			var svgUrl = svgToBlob (this.svgString);
+		}
+
+		if (selector instanceof HTMLElement && selector.nodeName === 'OBJECT') {
+			var node = selector;
+			var loadCompleteHandler = () => {
+				node.removeEventListener ('load', loadCompleteHandler);
+				this.document = node.getSVGDocument();
+				this.addPinoutNodes ();
+
+			}
+			node.addEventListener ('load', loadCompleteHandler);
+			node.data = svgUrl;
+		}
+
 	}
 
 	parse () {
@@ -111,7 +128,7 @@ export default class SVGView {
 		var doc = this.document;
 		var theNode = doc.createElementNS (NS, nodeName);
 		for (var attrName in attrs) {
-			theNode.setAttributeNS (NS, attrName, attrs[attrName]);
+			theNode.setAttribute (attrName, attrs[attrName]);
 		}
 		return theNode;
 	}
@@ -256,8 +273,6 @@ export default class SVGView {
 		var cols = {};
 
 		Object.keys (brdData).forEach ((connectorId) => {
-
-			console.log (connectorId);
 
 			if (connectorId === 'cuwire') {
 				return;
@@ -682,8 +697,6 @@ export default class SVGView {
 
 		this.preindentChild (g);
 		g.appendChild (text);
-
-		debugger;
 
 		var bbox = text.getBBox();
 		// console.log (bbox)
