@@ -101,11 +101,58 @@ export default class FritzingFzp {
 			var signalNodes = node.getElementsByTagName ('signal');
 
 			if (!signalNodes || !signalNodes.length) {
+				var pinName = node.getAttribute ('name');
+				var fn = [];
+
+				// start guessing
+				if (pinName.match (/I2C\s+Data|I2C(\d)?[ _-]SDA|SDA/i)) {
+					fn.push ({group: 'i2c', name: 'sda'});
+					// groupNum: (fnNode.getAttribute ('groupNum') || '').toLowerCase()
+				}
+
+				if (pinName.match (/I2C\s+Clock|I2C(\d)[ _-]SCL|SCL/i)) {
+					fn.push ({group: 'i2c', name: 'scl'});
+					// groupNum: (fnNode.getAttribute ('groupNum') || '').toLowerCase()
+				}
+
+				if (pinName.match (/[^a-z]*[AD]?GND[^a-z]*/i)) {
+					fn.push ({group: 'gnd', name: pinName});
+					// groupNum: (fnNode.getAttribute ('groupNum') || '').toLowerCase()
+				}
+
+				if (pinName.match (/[!#~]?(?:RST|RESET)/i)) {
+					fn.push ({group: 'system', name: pinName});
+					// groupNum: (fnNode.getAttribute ('groupNum') || '').toLowerCase()
+				}
+
+				if (pinName.match (/VCC|VDD/i)) {
+					fn.push ({group: 'power', name: pinName});
+					// groupNum: (fnNode.getAttribute ('groupNum') || '').toLowerCase()
+				}
+
+				if (pinName.match (/(?:_|-|^)(RXD?|TXD?|RTS|CTS|DTR|DSR|)(\d)(?:_|-|^)/i)) {
+					fn.push ({group: 'uart', name: pinName});
+					// groupNum: (fnNode.getAttribute ('groupNum') || '').toLowerCase()
+				}
+				/*
+				ICSP MISO
+				ICSP MOSI
+				ICSP SCK
+				ISCP RESET
+				ISCP SCK
+				*/
+
+				fn.push ({
+					group: 'gpio',
+					name: pinName
+				});
+
+				if (fn.length > 1) {
+					fn[fn.length - 1].hidden = true;
+				}
+
 				fzpData.connectors[connectorId] = {
-					fn: [{
-						group: 'pin',
-						name: node.getAttribute ('name')
-					}],
+					fn,
 					svgId: svgId,
 				}
 				return;
