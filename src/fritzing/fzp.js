@@ -1,3 +1,7 @@
+import FS from 'fs';
+
+import {promisify} from '../common';
+
 import {DOMParser} from 'xmldom';
 
 function parseBoolean (value) {
@@ -7,6 +11,18 @@ function parseBoolean (value) {
 }
 
 export default class FritzingFzp {
+
+	static parseFromFile (filename) {
+		return promisify (FS.readFile)(filename).then (contents => {
+			return FritzingFzp.parseFromString (contents.toString ('utf8'))
+		}, err => {
+			throw err;
+		})
+	}
+
+	get pins () {
+		return this.connectors;
+	}
 
 	static parseFromString (fzpContents) {
 
