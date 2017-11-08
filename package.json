@@ -35,11 +35,14 @@
     "mocha": "^4.0.1",
     "reify": "^0.11.0",
     "rollup": "^0.50.0",
-    "rollup-plugin-buble": "^0.16.0",
+    "rollup-plugin-buble": "^0.17.0",
     "rollup-plugin-ignore": "^1.0.3",
     "rollup-plugin-scss": "^0.3.0",
+    "rollup-plugin-sizes": "^0.4.0",
     "rollup-watch": "^3.2.2",
+    "svgdom": "github:apla/svgdom#testing",
     "xmldom": "^0.1.27"
   },
-  "dependencies": {}
+  "dependencies": {
+  }
 }

@@ -9,12 +9,14 @@ import buble from 'rollup-plugin-buble';
 // import {rollup} from 'rollup';
 import scss     from 'rollup-plugin-scss';
 import ignore   from 'rollup-plugin-ignore';
+import sizes from 'rollup-plugin-sizes';
+
 
 export default {
 	input: 'src/index.js',
-	
+
 	plugins: [
-		ignore (['fs', 'net', 'util']),
+		ignore ('fs net util path'.split (' ')),
 		scss ({
 			output: 'dist/pinout.css'
 		}),
@@ -26,20 +28,23 @@ export default {
 		nodeResolve({ jsnext: true, module: true }),
 		commonjs()
 		*/
+		sizes ()
 	],
 	output: {
 		file: 'dist/pinout.js',
-		format: 'iife',	
+		format: 'iife',
 	},
 	external: [
 		'xmldom',
+		'svgdom',
 		'jszip',
 		'JSZipUtils',
 	],
 	sourcemap: true,
 	globals: {
 		xmldom: 'window',
-		jszip: 'JSZip'
+		jszip: 'JSZip',
+		svgdom: 'window',
 	},
 	name: 'Pinout'
 }

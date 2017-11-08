@@ -1,1 +1,1 @@
---require reify --trace-warnings
+--require ./test/mocha --trace-warnings
