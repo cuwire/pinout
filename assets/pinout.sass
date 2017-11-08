@@ -1,93 +1,98 @@
-g.cuwire-pin text {
-	fill: white;
-	font-family: sans-serif;
-	text-transform: uppercase;
+g#pinout, g#legend {
+	text {
+		fill: white;
+		font-family: sans-serif;
+		text-transform: uppercase;
+	}
+
+	text.class {
+		text-transform: none;
+	}
+
+	.flag text {
+		fill: black;
+	}
+
+
+	.alt text {
+		fill: silver;
+	}
+
+	rect {
+		fill: gray;
+		stroke: #555;
+	}
+
+	line, path {
+		fill: none;
+		stroke: #555;
+		stroke-linecap: round;
+	}
+
+
+	.gnd rect {
+		fill: #333;
+		stroke: silver;
+	}
+
+	.digital rect, .gpio rect {
+		fill: #065598;
+		stroke: silver;
+	}
+
+	.analog rect {
+		fill: #b204b2;
+		stroke: silver;
+	}
+
+	.spi rect {
+		fill: #31dcfc;
+		stroke: silver;
+	}
+
+	.uart rect {
+		fill: #4af772;
+		stroke: silver;
+	}
+
+	.i2c rect {
+		fill: #ff9a25;
+		stroke: silver;
+	}
+
+	.pcint rect {
+		fill: #ffffcc;
+		stroke: silver;
+	}
+
+	.pcint text, .spi text, .i2c text, .uart text {
+		fill: #454343;
+	}
+
+	.spi.alt text, .i2c.alt text, .uart.alt text {
+		fill: #9a9a9a;
+	}
+
+	.jtag rect {
+		fill: #571616;
+		stroke: silver;
+	}
+
+
+	.power rect, .pwr rect {
+		fill: rgb(255, 64, 64);
+		stroke: silver;
+	}
+
+	.system rect, .sys rect {
+		fill: white;
+		stroke: silver;
+	}
+
+	.system text, .sys text {
+		fill: black;
+	}
 }
 
-g.cuwire-pin text.class {
-	text-transform: none;
-}
 
-g.cuwire-pin .flag text {
-	fill: black;
-}
-
-
-g.cuwire-pin .alt text {
-	fill: silver;
-}
-
-g.cuwire-pin rect {
-	fill: gray;
-	stroke: #555;
-}
-
-g.cuwire-pin line, g.cuwire-pin path {
-	fill: none;
-	stroke: #555;
-	stroke-linecap: round;
-}
-
-
-g.cuwire-pin .gnd rect {
-	fill: #333;
-	stroke: silver;
-}
-
-g.cuwire-pin .digital rect, g.cuwire-pin .gpio rect {
-	fill: #065598;
-	stroke: silver;
-}
-
-g.cuwire-pin .analog rect {
-	fill: #b204b2;
-	stroke: silver;
-}
-
-g.cuwire-pin .spi rect {
-	fill: #31dcfc;
-	stroke: silver;
-}
-
-g.cuwire-pin .uart rect {
-	fill: #4af772;
-	stroke: silver;
-}
-
-g.cuwire-pin .i2c rect {
-	fill: #ff9a25;
-	stroke: silver;
-}
-
-g.cuwire-pin .pcint rect {
-	fill: #ffffcc;
-	stroke: silver;
-}
-
-g.cuwire-pin .pcint text, g.cuwire-pin .spi text, g.cuwire-pin .i2c text, g.cuwire-pin .uart text {
-	fill: #454343;
-}
-
-g.cuwire-pin .spi.alt text, g.cuwire-pin .i2c.alt text, g.cuwire-pin .uart.alt text {
-	fill: #9a9a9a;
-}
-
-g.cuwire-pin .jtag rect {
-	fill: #571616;
-	stroke: silver;
-}
-
-
-g.cuwire-pin .power rect, g.cuwire-pin .pwr rect {
-	fill: rgb(255, 64, 64);
-	stroke: silver;
-}
-
-g.cuwire-pin .system rect, g.cuwire-pin .sys rect {
-	fill: white;
-	stroke: silver;
-}
-
-g.cuwire-pin .system text, g.cuwire-pin .sys text {
-	fill: black;
 }
