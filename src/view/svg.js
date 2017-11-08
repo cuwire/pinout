@@ -497,21 +497,21 @@ export default class SVGView {
 			var labelView = this.labelForPin (g, 'right', {
 				name: group,
 				group,
-				noScope: true,
-				noWire: true,
+				legend: true
 			}, {
-				x: rootBBox.x + rootBBox.width + this.fontSize,
+				x: rootBBox.x + rootBBox.width + this.fontSize * 1.5,
 				y: this.pitch * idx
 			});
 
 			labelView.g.setAttribute ('onmouseover', `this.ownerSVGElement.classList.add("hilight-${group}")`);
 			labelView.g.setAttribute ('onmouseout', `this.ownerSVGElement.classList.remove("hilight-${group}")`);
 
+			var flagPrefix = this.flags.indexOf (group) > -1 ? 'flag-' : '';
 			style.textContent += `
-[class*=' hilight-${group}'] g#pinout .${group} text,
-[class*=' hilight-${group}'] g#pinout .${group} rect,
-[class^='hilight-${group}'] g#pinout .${group} text,
-[class^='hilight-${group}'] g#pinout .${group} rect {
+[class*=' hilight-${group}'] g#pinout .${flagPrefix}${group} text,
+[class*=' hilight-${group}'] g#pinout .${flagPrefix}${group} rect,
+[class^='hilight-${group}']  g#pinout .${flagPrefix}${group} text,
+[class^='hilight-${group}']  g#pinout .${flagPrefix}${group} rect {
 	opacity: 1
 }
 `;
@@ -630,8 +630,10 @@ export default class SVGView {
 		this.postindentNode (g);
 
 		this.postindentNode (this.pinoutNode);
+	}
 
-
+	get flags () {
+		return ['pwm', 'dac', '5v']
 	}
 
 	wireForPin (g, side, pinData, coords) {
@@ -671,6 +673,7 @@ export default class SVGView {
 
 			this.preindentChild (g);
 			g.appendChild (path);
+			g.classList.add ('flag-dac');
 		} else if (pinData.fn.some (label => label.group === 'pwm')) {
 			var path = this.createSVGNode ("path", {
 				d: [
@@ -694,6 +697,7 @@ export default class SVGView {
 
 			this.preindentChild (g);
 			g.appendChild (path);
+			g.classList.add ('flag-pwm');
 		} else {
 			var line = this.createSVGNode ("line", {
 				x1: 0,
@@ -740,6 +744,8 @@ export default class SVGView {
 
 			this.preindentChild (g);
 			g.appendChild (line);
+
+			g.classList.add ('flag-5v');
 		}
 
 		this.postindentNode (g);
@@ -803,7 +809,7 @@ export default class SVGView {
 		// var ctm  = text.getCTM(); // infinite loop on svgdom
 		// var sctm = text.getScreenCTM();
 
-		if (labelMeta.group && labelMeta.group.length <= 4 && !labelMeta.noScope) {
+		if (labelMeta.group && labelMeta.group.length <= 4 && !labelMeta.legend) {
 			if (labelMeta.groupNum) {
 				var scopeIdText = this.createSVGNode ("text", {
 					x: pinX + labelTextOffset + this.fontSize/5 + (side === 'right' ? 0 : -1) * bbox.width,
@@ -854,9 +860,9 @@ export default class SVGView {
 		};
 
 		var rect = this.createSVGNode ("rect", {
-			x: bbox.x - this.fontSize / 2,
+			x: bbox.x - this.fontSize * (labelMeta.legend ? 1.25 : 0.5),
 			y: pinY - bbox.height/2,
-			width: bbox.width + this.fontSize,
+			width: (labelMeta.legend ? 0 : bbox.width) + this.fontSize,
 			height: bbox.height,
 			rx: this.fontSize/5,
 			ry: this.fontSize/5,
@@ -867,7 +873,7 @@ export default class SVGView {
 
 		g.insertBefore (rect, text);
 
-		if (!labelMeta.noWire) {
+		if (!labelMeta.legend) {
 			var line = this.createSVGNode ("line", {
 				x1: lineRect.x1,
 				x2: lineRect.x2,

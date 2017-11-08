@@ -4,7 +4,7 @@ import Fzpz from '../src/fritzing/fzpz';
 import SVGnJSON from '../src/svg-and-json';
 
 import SVGView from '../src/view/svg';
-SVGView.css = FS.readFileSync ('./assets/pinout.sass');
+SVGView.css = FS.readFileSync ('./dist/pinout.css');
 
 import {DOMParser, XMLSerializer} from 'xmldom';
 
