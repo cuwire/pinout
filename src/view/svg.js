@@ -494,19 +494,41 @@ export default class SVGView {
 
 		Object.keys (groupNames).sort().forEach ((group, idx) => {
 			var bbox = g.getBBox();
+
+			var flagPrefix = this.flags.indexOf (group) > -1 ? 'flag-' : '';
+
+			var labelPoint = {
+				x: rootBBox.x + rootBBox.width + this.fontSize * 1.5,
+				y: this.pitch * idx
+			};
+
 			var labelView = this.labelForPin (g, 'right', {
 				name: group,
 				group,
 				legend: true
-			}, {
-				x: rootBBox.x + rootBBox.width + this.fontSize * 1.5,
-				y: this.pitch * idx
-			});
+			}, labelPoint);
+
+			if (flagPrefix) {
+				console
+				var path = this.createSVGNode ("path", {
+					d: "M"+[
+						labelPoint.x - this.fontSize/4, labelPoint.y
+					].join (',') + ' ' + this.flagPath (group, {
+						x1: 0,
+						y1: 0,
+						x2: this.fontSize,
+						y2: 0
+					}),
+					"stroke-width": this.fontSize/8,
+				});
+
+				this.preindentChild (g);
+				labelView.g.appendChild (path);
+			}
 
 			labelView.g.setAttribute ('onmouseover', `this.ownerSVGElement.classList.add("hilight-${group}")`);
 			labelView.g.setAttribute ('onmouseout', `this.ownerSVGElement.classList.remove("hilight-${group}")`);
 
-			var flagPrefix = this.flags.indexOf (group) > -1 ? 'flag-' : '';
 			style.textContent += `
 [class*=' hilight-${group}'] g#pinout .${flagPrefix}${group} text,
 [class*=' hilight-${group}'] g#pinout .${flagPrefix}${group} rect,
@@ -636,6 +658,34 @@ export default class SVGView {
 		return ['pwm', 'dac', '5v']
 	}
 
+	flagPath (flag, lineRect) {
+
+		if (flag === 'dac') return [
+			"l"+[lineRect.x1, lineRect.y1].join (','),
+			"l"+[(lineRect.x2-lineRect.x1)/8, 0].join (','),
+			"C"+[lineRect.x1 + (lineRect.x2-lineRect.x1)/2, lineRect.y2 - Math.abs (this.fontSize)].join (','),
+			[lineRect.x1 + (lineRect.x2-lineRect.x1)/2, lineRect.y2 + Math.abs (this.fontSize)].join (','),
+			[lineRect.x2 - (lineRect.x2-lineRect.x1)/8, lineRect.y2].join (','),
+			"l"+[(lineRect.x2-lineRect.x1)/8, 0].join (','),
+		].join (' ');
+
+		if (flag === 'pwm') return [
+			"l"+[lineRect.x1, lineRect.y1].join (','),
+			"l"+[(lineRect.x2-lineRect.x1)/4, 0].join (','),
+			"l"+[0, this.fontSize/4].join (','),
+			"l"+[(lineRect.x2-lineRect.x1)/4, 0].join (','),
+			"l"+[0, -this.fontSize/2].join (','),
+			"l"+[(lineRect.x2-lineRect.x1)/4, 0].join (','),
+			"l"+[0, this.fontSize/4].join (','),
+			"l"+[(lineRect.x2-lineRect.x1)/4, 0].join (','),
+			/*"C"+[lineRect.x1 + (lineRect.x2-lineRect.x1)/2, lineRect.y2 - Math.abs (labelTextOffset/2)].join (','),
+				[lineRect.x1 + (lineRect.x2-lineRect.x1)/2, lineRect.y2 + Math.abs (labelTextOffset/2)].join (','),
+				[lineRect.x2-(lineRect.x2-lineRect.x1)/4, lineRect.y2].join (','),
+				*/
+			//"l"+[(lineRect.x2-lineRect.x1)/2, 0].join (','),
+		].join (' ')
+	}
+
 	wireForPin (g, side, pinData, coords) {
 
 		var svgDoc = this.document;
@@ -659,15 +709,7 @@ export default class SVGView {
 		// TODO: remove stroke width from line x
 		if (pinData.fn.some (label => label.group === 'dac')) {
 			var path = this.createSVGNode ("path", {
-				d: [
-					"M"+[0, 0].join (','),
-					"l"+[lineRect.x1, lineRect.y1].join (','),
-					"l"+[(lineRect.x2-lineRect.x1)/8, 0].join (','),
-					"C"+[lineRect.x1 + (lineRect.x2-lineRect.x1)/2, lineRect.y2 - Math.abs (this.fontSize)].join (','),
-					[lineRect.x1 + (lineRect.x2-lineRect.x1)/2, lineRect.y2 + Math.abs (this.fontSize)].join (','),
-					[lineRect.x2 - (lineRect.x2-lineRect.x1)/8, lineRect.y2].join (','),
-					"l"+[(lineRect.x2-lineRect.x1)/8, 0].join (','),
-				].join (' '),
+				d: "M"+[0, 0].join (',') + ' ' + this.flagPath ('dac', lineRect),
 				"stroke-width": this.fontSize/8,
 			});
 
@@ -676,22 +718,7 @@ export default class SVGView {
 			g.classList.add ('flag-dac');
 		} else if (pinData.fn.some (label => label.group === 'pwm')) {
 			var path = this.createSVGNode ("path", {
-				d: [
-					"M"+[0, 0].join (','),
-					"l"+[lineRect.x1, lineRect.y1].join (','),
-					"l"+[(lineRect.x2-lineRect.x1)/4, 0].join (','),
-					"l"+[0, this.fontSize/4].join (','),
-					"l"+[(lineRect.x2-lineRect.x1)/4, 0].join (','),
-					"l"+[0, -this.fontSize/2].join (','),
-					"l"+[(lineRect.x2-lineRect.x1)/4, 0].join (','),
-					"l"+[0, this.fontSize/4].join (','),
-					"l"+[(lineRect.x2-lineRect.x1)/4, 0].join (','),
-					/*"C"+[lineRect.x1 + (lineRect.x2-lineRect.x1)/2, lineRect.y2 - Math.abs (labelTextOffset/2)].join (','),
-				[lineRect.x1 + (lineRect.x2-lineRect.x1)/2, lineRect.y2 + Math.abs (labelTextOffset/2)].join (','),
-				[lineRect.x2-(lineRect.x2-lineRect.x1)/4, lineRect.y2].join (','),
-				*/
-					//"l"+[(lineRect.x2-lineRect.x1)/2, 0].join (','),
-				].join (' '),
+				d: "M"+[0, 0].join (',') + ' ' + this.flagPath ('pwm', lineRect),
 				"stroke-width": this.fontSize/8,
 			});
 
