@@ -180,8 +180,10 @@ export default class SVGView {
 
 		// defs.appendChild(linkElm);
 
-		if (this.pins)
+		if (this.pins) {
 			this.drawLabels ({});
+			this.drawLegend ({});
+		}
 
 	}
 
@@ -378,7 +380,7 @@ export default class SVGView {
 					return;
 				if (['defs', 'style'].indexOf (node.nodeName) > -1)
 					return;
-				if (node.id === 'pinout')
+				if (node.id === 'pinout' || node.id === 'legend')
 					return;
 				return true;
 			});
@@ -455,6 +457,69 @@ export default class SVGView {
 		}
 
 		return result;
+	}
+
+	drawLegend () {
+		var svgDoc  = this.document;
+		var svgRoot = svgDoc.documentElement;
+
+		var pinoutNode = this.pinoutNode;
+
+		var groupNames = Object.keys (this.pins).reduce ((groupNames, pinId) => {
+
+			var pinData = this.pins[pinId];
+
+			pinData.fn.forEach (fn => groupNames[fn.group] = true);
+
+			return groupNames;
+		}, {});
+
+		var g = this.createSVGNode ("g", {
+			id: 'legend',
+			// transform: "rotate("+this.rotated+" "+pinX+" "+pinY+")",
+			// x: pinX+10,
+			// y: pinY,
+			// "font-size": fontSize,
+			// fill: "white"
+		});
+
+		svgRoot.appendChild (g);
+
+		var style = this.createSVGNode ("style", {});
+
+		svgRoot.appendChild (style);
+
+
+		var rootBBox = svgRoot.getBBox();
+
+		Object.keys (groupNames).sort().forEach ((group, idx) => {
+			var bbox = g.getBBox();
+			var labelView = this.labelForPin (g, 'right', {
+				name: group,
+				group,
+				noScope: true,
+				noWire: true,
+			}, {
+				x: rootBBox.x + rootBBox.width + this.fontSize,
+				y: bbox.height
+			});
+
+			labelView.g.setAttribute ('onmouseover', `this.ownerSVGElement.classList.add("hilight-${group}")`);
+			labelView.g.setAttribute ('onmouseout', `this.ownerSVGElement.classList.remove("hilight-${group}")`);
+
+			style.textContent += `
+[class*=' hilight-${group}'] g#pinout .${group} text,
+[class*=' hilight-${group}'] g#pinout .${group} rect,
+[class^='hilight-${group}'] g#pinout .${group} text,
+[class^='hilight-${group}'] g#pinout .${group} rect {
+	opacity: 1
+}
+`;
+
+		});
+
+		showWholeSVG (svgDoc);
+
 	}
 
 	drawLabels (exclude = {}) {
@@ -671,7 +736,7 @@ export default class SVGView {
 		].filter (a => a).join (' ')
 
 		var g = this.createSVGNode ("g", {
-			class: 'cuwire-pin ' + className,
+			class: 'label ' + className,
 			//		transform: "rotate("+(rotated ? -90 : 0)+" "+pinX+" "+pinY+")",
 			// x: pinX+10,
 			// y: pinY,
@@ -703,7 +768,7 @@ export default class SVGView {
 		// var ctm  = text.getCTM(); // infinite loop on svgdom
 		// var sctm = text.getScreenCTM();
 
-		if (labelMeta.group && labelMeta.group.length <= 4) {
+		if (labelMeta.group && labelMeta.group.length <= 4 && !labelMeta.noScope) {
 			if (labelMeta.groupNum) {
 				var scopeIdText = this.createSVGNode ("text", {
 					x: pinX + labelTextOffset + this.fontSize/5 + (side === 'right' ? 0 : -1) * bbox.width,
@@ -767,15 +832,17 @@ export default class SVGView {
 
 		g.insertBefore (rect, text);
 
-		var line = this.createSVGNode ("line", {
-			x1: lineRect.x1,
-			x2: lineRect.x2,
-			y1: lineRect.y1,
-			y2: lineRect.y2,
-			"stroke-width": this.fontSize/8,
-		});
+		if (!labelMeta.noWire) {
+			var line = this.createSVGNode ("line", {
+				x1: lineRect.x1,
+				x2: lineRect.x2,
+				y1: lineRect.y1,
+				y2: lineRect.y2,
+				"stroke-width": this.fontSize/8,
+			});
 
-		g.insertBefore (line, text);
+			g.insertBefore (line, text);
+		}
 
 		// connectorNode.parentElement.insertBefore (rect, c25.nextSibling);
 
@@ -799,6 +866,8 @@ export default class SVGView {
 			bBoxX: bbox.x,
 			bBoxWidth: bbox.width,
 			y: pinY,
+			bBoxWidth: bbox.height,
+			g,
 			// ctm: ctm,
 			// sctm: sctm
 		};
