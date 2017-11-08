@@ -501,7 +501,7 @@ export default class SVGView {
 				noWire: true,
 			}, {
 				x: rootBBox.x + rootBBox.width + this.fontSize,
-				y: bbox.height
+				y: this.pitch * idx
 			});
 
 			labelView.g.setAttribute ('onmouseover', `this.ownerSVGElement.classList.add("hilight-${group}")`);
@@ -701,6 +701,41 @@ export default class SVGView {
 				y1: lineRect.y1,
 				y2: lineRect.y2,
 				"stroke-width": this.fontSize/8,
+			});
+
+			this.preindentChild (g);
+			g.appendChild (line);
+		}
+
+		if (pinData.fn.some (label => label.group === '5v')) {
+			var circle = this.createSVGNode ("circle", {
+				cx: 0,
+				cy: 0,
+				r: this.fontSize /3,
+				"stroke-width": this.fontSize/8,
+				fill: 'white'
+			});
+
+			this.preindentChild (g);
+			g.appendChild (circle);
+
+			var line = this.createSVGNode ("line", {
+				x1: -this.fontSize /4,
+				y1: -this.fontSize /8,
+				x2: 0,
+				y2: this.fontSize /4,
+				"stroke-width": this.fontSize/8
+			});
+
+			this.preindentChild (g);
+			g.appendChild (line);
+
+			var line = this.createSVGNode ("line", {
+				x1: this.fontSize /4,
+				y1: -this.fontSize /8,
+				x2: 0,
+				y2: this.fontSize /4,
+				"stroke-width": this.fontSize/8
 			});
 
 			this.preindentChild (g);
