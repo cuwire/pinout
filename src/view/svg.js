@@ -509,16 +509,17 @@ export default class SVGView {
 			}, labelPoint);
 
 			if (flagPrefix) {
-				console
+				var flagPath = this.flagPath (group, {
+					x1: 0,
+					y1: 0,
+					x2: this.fontSize,
+					y2: 0
+				});
+				// TODO: adjust it with translate after calculating bbox
 				var path = this.createSVGNode ("path", {
 					d: "M"+[
-						labelPoint.x - this.fontSize/4, labelPoint.y
-					].join (',') + ' ' + this.flagPath (group, {
-						x1: 0,
-						y1: 0,
-						x2: this.fontSize,
-						y2: 0
-					}),
+							labelPoint.x - this.fontSize/4, labelPoint.y
+						].join (',') + ' ' + flagPath,
 					"stroke-width": this.fontSize/8,
 				});
 
@@ -683,7 +684,13 @@ export default class SVGView {
 				[lineRect.x2-(lineRect.x2-lineRect.x1)/4, lineRect.y2].join (','),
 				*/
 			//"l"+[(lineRect.x2-lineRect.x1)/2, 0].join (','),
-		].join (' ')
+		].join (' ');
+
+		if (flag === '5v') return [
+			"m"+[(lineRect.x2 - lineRect.x1)/2, 0].join (','),
+			"l"+[this.fontSize / 6, this.fontSize / 3].join (','),
+			"l"+[this.fontSize / 6, -this.fontSize / 3].join (',')
+		].join (" ");
 	}
 
 	wireForPin (g, side, pinData, coords) {
@@ -750,27 +757,15 @@ export default class SVGView {
 			this.preindentChild (g);
 			g.appendChild (circle);
 
-			var line = this.createSVGNode ("line", {
-				x1: -this.fontSize /4,
-				y1: -this.fontSize /8,
-				x2: 0,
-				y2: this.fontSize /4,
+			var path = this.createSVGNode ("path", {
+				d:
+					"M"+[-this.fontSize / 6, -this.fontSize / 6].join (',')
+					+ ' ' + this.flagPath ('5v', {x1: 0, y1: 0, x2: 0, y2: 0}),
 				"stroke-width": this.fontSize/8
 			});
 
 			this.preindentChild (g);
-			g.appendChild (line);
-
-			var line = this.createSVGNode ("line", {
-				x1: this.fontSize /4,
-				y1: -this.fontSize /8,
-				x2: 0,
-				y2: this.fontSize /4,
-				"stroke-width": this.fontSize/8
-			});
-
-			this.preindentChild (g);
-			g.appendChild (line);
+			g.appendChild (path);
 
 			g.classList.add ('flag-5v');
 		}
