@@ -51,11 +51,11 @@
 		"fn": {
 			"digital": "D3",
 			"x-gpio": "PB0",
-			"adc": "ADC8"
+			"adc": "ADC8",
+			"x-timer-3": "CH3"
 		},
 		"flags": {
-			"pwm": true,
-			"timer-3": "CH3"
+			"pwm": true
 		}
 	},
 	"connector5pin": {
@@ -64,11 +64,11 @@
 			"digital": "D4",
 			"x-gpio": "PA7",
 			"spi-1": "MOSI",
-			"adc": "ADC7"
+			"adc": "ADC7",
+			"x-timer-3": "CH2"
 		},
 		"flags": {
-			"pwm": true,
-			"timer-3": "CH2"
+			"pwm": true
 		}
 	},
 	"connector6pin": {
@@ -77,12 +77,12 @@
 			"digital": "D5",
 			"x-gpio": "PA6",
 			"spi-1": "MISO",
-			"adc": "ADC6"
+			"adc": "ADC6",
+			"x-timer-3": "CH1"
 
 		},
 		"flags": {
-			"pwm": true,
-			"timer-3": "CH1"
+			"pwm": true
 		}
 	},
 	"connector7pin": {
@@ -110,11 +110,11 @@
 			"digital": "D8",
 			"x-gpio": "PA3",
 			"uart-2": "RX",
-			"adc": "ADC3"
+			"adc": "ADC3",
+			"x-timer-2": "CH4"
 		},
 		"flags": {
-			"pwm": true,
-			"timer-2": "CH4"
+			"pwm": true
 		}
 	},
 	"connector10pin": {
@@ -123,11 +123,11 @@
 			"digital": "D9",
 			"x-gpio": "PA2",
 			"uart-2": "TX",
-			"adc": "ADC2"
+			"adc": "ADC2",
+			"x-timer-2": "CH3"
 		},
 		"flags": {
-			"pwm": true,
-			"timer-2": "CH3"
+			"pwm": true
 		}
 	},
 	"connector11pin": {
@@ -136,11 +136,11 @@
 			"digital": "D10",
 			"x-gpio": "PA1",
 			"uart-2": "RTS",
-			"adc": "ADC1"
+			"adc": "ADC1",
+			"x-timer-2": "CH2"
 		},
 		"flags": {
-			"pwm": true,
-			"timer-2": "CH2"
+			"pwm": true
 		}
 	},
 	"connector12pin": {
@@ -149,17 +149,17 @@
 			"digital": "D11",
 			"x-gpio": "PA0",
 			"uart-2": "CTS",
-			"adc": "ADC0"
+			"adc": "ADC0",
+			"x-timer-2": "CH1_ETR"
 		},
 		"flags": {
-			"pwm": true,
-			"timer-2": "CH1_ETR"
+			"pwm": true
 		}
 	},
 	"connector13pin": {
 		"side": "right",
 		"fn": {
-			"system": "RESET"
+			"sys": "RESET"
 		}
 	},
 	"connector14pin": {
@@ -224,12 +224,12 @@
 		"fn": {
 			"digital": "D15",
 			"x-gpio": "PB7",
-			"i2c-1": "SDA"
+			"i2c-1": "SDA",
+			"x-timer-4": "CH2"
 		},
 		"flags": {
 			"pwm": true,
-			"5v": true,
-			"timer-4": "CH2"
+			"5v": true
 		}
 	},
 	"connector24pin": {
@@ -237,12 +237,12 @@
 		"fn": {
 			"digital": "D16",
 			"x-gpio": "PB6",
-			"i2c-1": "SCL"
+			"i2c-1": "SCL",
+			"x-timer-4": "CH1"
 		},
 		"flags": {
 			"pwm": true,
-			"5v": true,
-			"timer-4": "CH1"
+			"5v": true
 		}
 	},
 	"connector25pin": {
@@ -314,11 +314,11 @@
 			"digital": "D23",
 			"x-gpio": "PA12",
 			"uart-1": "RTS",
-			"usb": "USB D+"
+			"usb": "USB D+",
+			"x-timer-1": "ETR"
 		},
 		"flags": {
-			"5v": true,
-			"timer-1": "ETR"
+			"5v": true
 		}
 	},
 	"connector32pin": {
@@ -327,11 +327,11 @@
 			"digital": "D24",
 			"x-gpio": "PA11",
 			"uart-1": "CTS",
-			"usb": "USB D-"
+			"usb": "USB D-",
+			"x-timer-1": "CH4"
 		},
 		"flags": {
-			"5v": true,
-			"timer-1": "CH4"
+			"5v": true
 		}
 	},
 	"connector33pin": {
@@ -339,12 +339,12 @@
 		"fn": {
 			"digital": "D25",
 			"x-gpio": "PA10",
-			"uart-1": "RX"
+			"uart-1": "RX",
+			"x-timer-1": "CH3"
 		},
 		"flags": {
 			"5v": true,
-			"pwm": true,
-			"timer-1": "CH3"
+			"pwm": true
 		}
 	},
 	"connector34pin": {
@@ -352,24 +352,24 @@
 		"fn": {
 			"digital": "D26",
 			"x-gpio": "PA9",
-			"uart-1": "TX"
+			"uart-1": "TX",
+			"x-timer-1": "CH2"
 		},
 		"flags": {
 			"5v": true,
-			"pwm": true,
-			"timer-1": "CH2"
+			"pwm": true
 		}
 	},
 	"connector35pin": {
 		"side": "left",
 		"fn": {
 			"digital": "D27",
-			"x-gpio": "PA8"
+			"x-gpio": "PA8",
+			"x-timer-1": "CH1"
 		},
 		"flags": {
 			"5v": true,
-			"pwm": true,
-			"timer-1": "CH1"
+			"pwm": true
 		}
 	},
 	"connector36pin": {
@@ -414,11 +414,11 @@
 			"x-gpio": "PB12",
 			"spi-2": "SS",
 			"uart-3": "CK",
-			"i2c-2": "SMBA"
+			"i2c-2": "SMBA",
+			"x-timer-1": "BKIN"
 		},
 		"flags": {
-			"5v": true,
-			"timer-1": "BKIN"
+			"5v": true
 		}
 	}
 
